@@ -5,9 +5,21 @@ const nodemon = require('gulp-nodemon');
 const stylus = require('gulp-stylus');
 const nib = require('nib');
 const babelify = require('babelify');
+const flow = require('gulp-flowtype');
 
 gulp.task('build', ['build:scripts', 'build:styles']);
 
+gulp.task('typecheck', function() {
+  return gulp.src(['./public/**/*.jsx', './public/**/*.jsx'])
+    .pipe(flow({
+        all: false,
+        weak: false,
+        // declarations: './declarations',
+        killFlow: false,
+        beep: true,
+        abort: false
+    }))
+});
 
 gulp.task('build:scripts', () => {
     browserify('./public/components/App.jsx')
@@ -25,14 +37,14 @@ gulp.task('build:styles', () => {
 
 
 gulp.task('watch', () =>
-    gulp.watch(['public/components/*.jsx', 'public/components/*.styl'], ['build'])
+    gulp.watch(['public/modules/*.js', 'public/components/*.jsx', 'public/components/*.styl'], ['build'])
 );
 
 
 gulp.task('develop', () => {
     nodemon({
         script: './server.js',
-        execMap: 'node',
+        execMap: 'babel-node',
     });
 });
 

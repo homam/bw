@@ -1,0 +1,6 @@
+{
+    "authKey": '2Tfdg1VfsygbQZIYsD0yoV4emx9sM8SXrLiyr7Et',
+    "contestApi": 'http://local.prizefrenzy.com/api/games/contest/list',
+    "quizApi": 'http://local.prizefrenzy.com/api/games/contest/quiz',
+    "answerApi": 'http://local.prizefrenzy.com/api/games/contest/answer'
+}
