@@ -40,11 +40,6 @@ const apiRequest = (url: string, authKey: string, hash: string, payload: QuizPay
         , data: payload
     })
 
-type ContestListResult = {
-    message: string,
-    data: Object,
-    status_code: number
-}
 
 const getContestList = (url: string, authKey: string): Promise<Object> => axios({
     method: 'get'
