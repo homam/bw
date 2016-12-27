@@ -26,7 +26,7 @@ export type OptionItem = {
     , description: string
 }
 
-export type Question = {
+export type QuestionItem = {
     title: string
     , options: Array<OptionItem>
     , option_type: string

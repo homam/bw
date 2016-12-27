@@ -3,7 +3,7 @@
 const axios = require('axios')
 const R = require('ramda')
 const {authKey, contestApi, quizApi, answerApi} = require('../config')
-import type {QuizPayload, AnswerPayload, ContestItem, Question} from "../../types.js"
+import type {QuizPayload, AnswerPayload, ContestItem, QuestionItem} from "../../types.js"
 
 
 const calculateHash = (payloadString: string): string => {
@@ -76,7 +76,7 @@ const getContestList = (url: string, authKey: string): Promise<Array<ContestItem
 )
 
 
-const getContestQuiz = (url: string, authKey: string, contestId: number, questionNumber: number): Promise<Question> => {
+const getContestQuiz = (url: string, authKey: string, contestId: number, questionNumber: number): Promise<QuestionItem> => {
 
     const hash = R.compose(calculateHash, constructQuizPayloadString)(contestId, questionNumber)
 
@@ -90,7 +90,7 @@ const getContestQuiz = (url: string, authKey: string, contestId: number, questio
         apiRequest(url, authKey, hash, payload)
         .then(({data})=> {
 
-            const question: Question = R.compose(
+            const question: QuestionItem = R.compose(
                 (item)=> {
                     return {
                         ...item

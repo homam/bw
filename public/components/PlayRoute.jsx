@@ -3,7 +3,7 @@
 const React = require('react')
 const R = require('ramda')
 const {getContestQuiz} = require('../modules/apis')
-import type {Question} from "../../types.js";
+import type {QuestionItem} from "../../types.js";
 
 
 module.exports = React.createClass({
@@ -15,7 +15,7 @@ module.exports = React.createClass({
 
     , getInitialState()  {
         const initialState: {
-            questions: Array<Question>
+            questions: Array<QuestionItem>
         } = {
             questions: []
         }
