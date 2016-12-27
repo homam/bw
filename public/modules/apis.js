@@ -3,7 +3,7 @@
 const axios = require('axios')
 const R = require('ramda')
 const {authKey, contestApi, quizApi, answerApi} = require('../config')
-import type {QuizPayload, AnswerPayload} from "../../types.js";
+import type {QuizPayload, AnswerPayload} from "../../types.js"
 
 
 const calculateHash = (payloadString: string): string => {
@@ -79,14 +79,6 @@ const answerQuiz = (url: string, authKey: string, contestId: number, questionId:
 }
 
 
-// getContestQuiz(quizApi, authKey, 174, 0)
-// .then((d)=> console.log(d))
-// .catch((e)=> console.log(e))
-
 module.exports.getContestList = ()=> getContestList(contestApi, authKey)
-module.exports.getContestQuiz = R.curry(getContestList)(contestApi, authKey)
-module.exports.answerQuiz = R.curry(getContestList)(contestApi, authKey)
-
-// getContestList(contestApi, authKey)
-// .then(({data})=> console.log(R.values(data.data)))
-// .catch((e)=> console.log(e))
+module.exports.getContestQuiz = R.curry(getContestQuiz)(quizApi, authKey)
+module.exports.answerQuiz = R.curry(answerQuiz)(answerApi, authKey)
