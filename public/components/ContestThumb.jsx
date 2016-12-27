@@ -1,4 +1,5 @@
 const React = require('react')
+const {Link} = require('react-router')
 
 const Button = require('./Button.jsx')
 
@@ -12,7 +13,9 @@ module.exports = (props)=> {
                 <div className="row header">
                     <div className="small-12 columns"><img src={contestImage}/></div>
                     <div className="small-12 columns product-name">{name}</div>
-                    <div className="small-12 columns"><Button /></div>
+                    <div className="small-12 columns">
+                        <Link className="button" to={`/contest/${contestId}/play`}>Play Now</Link>
+                    </div>
                 </div>
 
                 <div className="row">

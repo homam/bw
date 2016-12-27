@@ -3,7 +3,7 @@
 const axios = require('axios')
 const R = require('ramda')
 const {authKey, contestApi, quizApi, answerApi} = require('../config')
-import type {QuizPayload, AnswerPayload, ContestItem, QuestionItem} from "../../types.js"
+import type {QuizPayload, AnswerPayload, ContestItem, QuestionItem, OptionItem} from "../../types.js"
 
 
 const calculateHash = (payloadString: string): string => {
@@ -28,6 +28,16 @@ const constructContestItem = (item: Object): ContestItem => {
         , best_time: best_time
         , contest_image: `https://prizefrenzy.com/api/games/${contest_image}`
         , time_remaining: time_remaining
+    }
+}
+
+
+const constructOptionItem = (type: string, item: Object): OptionItem => {
+    const {title, description} = item
+
+    return {
+        title: (type == 'image') ? `https://prizefrenzy.com/api/games/${title}` : title
+        , description: description
     }
 }
 
@@ -95,7 +105,10 @@ const getContestQuiz = (url: string, authKey: string, contestId: number, questio
                     return {
                         ...item
                         , options: R.compose(
-                            R.prop('Options')
+                            R.map(
+                                R.curry(constructOptionItem)(item.option_type)
+                            )
+                            , R.prop('Options')
                             , JSON.parse
                             , R.prop('options')
                         )(item)
