@@ -1,10 +1,12 @@
-// @flow
+ // @flow
 
 const React = require('react')
 const R = require('ramda')
+const moment = require('moment')
 const {getContestQuiz} = require('../modules/apis')
 import type {QuestionItem} from "../../types.js";
 
+const ContestInfo = require('./ContestInfo.jsx')
 const Question = require('./Question.jsx')
 
 
@@ -27,19 +29,23 @@ module.exports = React.createClass({
 
 
         return (<div className="play-route">
+            <ContestInfo time={this.state.startingTime} />
             {QuestionElem}
         </div>)
     }
 
     , getInitialState()  {
+
         const {contestId} = this.props.routeParams
 
         const initialState: {
             contestId: number
             , questions: Array<QuestionItem>
+            , startingTime: number
         } = {
             contestId: parseInt(contestId)
             , questions: []
+            , startingTime: 0
         }
 
         return initialState
