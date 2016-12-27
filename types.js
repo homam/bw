@@ -20,3 +20,18 @@ export type ContestItem = {
     , contest_image: string
     , time_remaining: number
 }
+
+export type OptionItem = {
+    title: string
+    , description: string
+}
+
+export type Question = {
+    title: string
+    , options: Array<OptionItem>
+    , option_type: string
+    , question_id: number
+    , total_questions: number
+    , question_number: number
+    , contest_id: number
+}

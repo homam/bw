@@ -3,7 +3,7 @@
 const axios = require('axios')
 const R = require('ramda')
 const {authKey, contestApi, quizApi, answerApi} = require('../config')
-import type {QuizPayload, AnswerPayload} from "../../types.js"
+import type {QuizPayload, AnswerPayload, ContestItem, Question} from "../../types.js"
 
 
 const calculateHash = (payloadString: string): string => {
@@ -19,8 +19,21 @@ const calculateHash = (payloadString: string): string => {
 }
 
 
+const constructContestItem = (item: Object): ContestItem => {
+    const {contest_id, name, best_time, contest_image, time_remaining} = item
+
+    return {
+        contest_id: contest_id
+        , name
+        , best_time: best_time
+        , contest_image: `https://prizefrenzy.com/api/games/${contest_image}`
+        , time_remaining: time_remaining
+    }
+}
+
+
 const constructQuizPayloadString = (contestID: number, i: number): string =>
-    `contest_id=${contestID},options_limit=1,question_number=${i},`
+    `contest_id=${contestID},options_limit=12,question_number=${i},`
 
 
 const constructAnswerPayloadString = (contestID: number, quesId: number, currentQ: number, answer: string): string=>
@@ -41,26 +54,60 @@ const apiRequest = (url: string, authKey: string, hash: string, payload: QuizPay
     })
 
 
-const getContestList = (url: string, authKey: string): Promise<Object> => axios({
-    method: 'get'
-    , url: url
-    , headers: {
-        'Authorization': `Bearer ${authKey}`
-    }
-})
+const getContestList = (url: string, authKey: string): Promise<Array<ContestItem>> => new Promise((resolve, reject)=>
+
+    axios({
+        method: 'get'
+        , url: url
+        , headers: {
+            'Authorization': `Bearer ${authKey}`
+        }
+    })
+    .then(({data})=> {
+        const contestList = R.compose(
+            R.map(constructContestItem)
+            , R.values
+            , R.prop('data')
+        )(data)
+
+        resolve(contestList)
+    })
+    .catch(reject)
+)
 
 
-const getContestQuiz = (url: string, authKey: string, contestId: number, questionNumber: number): Promise<Object> => {
+const getContestQuiz = (url: string, authKey: string, contestId: number, questionNumber: number): Promise<Question> => {
 
     const hash = R.compose(calculateHash, constructQuizPayloadString)(contestId, questionNumber)
 
     const payload = {
         contest_id: contestId
-        , options_limit: 1
+        , options_limit: 12
         , question_number: questionNumber
     }
 
-    return apiRequest(url, authKey, hash, payload)
+    return new Promise((resolve, reject)=>
+        apiRequest(url, authKey, hash, payload)
+        .then(({data})=> {
+
+            const question: Question = R.compose(
+                (item)=> {
+                    return {
+                        ...item
+                        , options: R.compose(
+                            R.prop('Options')
+                            , JSON.parse
+                            , R.prop('options')
+                        )(item)
+                    }
+                }
+                , R.prop('data')
+            )(data)
+
+            resolve(question)
+        })
+        .catch(reject)
+    )
 }
 
 

@@ -6,6 +6,7 @@ const {Router, Route, IndexRoute, browserHistory, hashHistory} = require('react-
 
 const Header = require('./Header.jsx')
 const HomeRoute = require('./HomeRoute.jsx')
+const PlayRoute = require('./PlayRoute.jsx')
 
 
 const App = React.createClass({
@@ -26,7 +27,7 @@ ReactDOM.render(
     <Router history={hashHistory}>
         <Route path="/" component={App}>
             <IndexRoute component={HomeRoute}/>
-            // <Route path="home" component={HomeRoute}/>
+            <Route path="contest/:contestId/play" component={PlayRoute}/>
         </Route>
     </Router>
     , document.getElementById('app-container')

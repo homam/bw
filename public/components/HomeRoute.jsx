@@ -44,22 +44,19 @@ module.exports = React.createClass({
     }
 
     , getInitialState() {
-        return {
+        const initialState: {
+            contestList: Array<ContestItem>
+        } = {
             contestList: []
         }
+
+        return initialState
     }
 
     , componentDidMount() {
         getContestList()
-        .then(({data})=> {
-
-            const contestList = R.compose(
-                R.map(constructContestItem)
-                , R.values
-                , R.prop('data')
-            )(data)
-
-            this.setState({contestList})
+        .then((contestList)=> {
+            this.setState({contestList: contestList})
         })
     }
 
