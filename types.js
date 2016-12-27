@@ -14,9 +14,9 @@ export type AnswerPayload = {
 }
 
 export type ContestItem = {
-    contestId: number
+    contest_id: number
     , name: string
-    , bestTime: number | null
-    , contestImage: string
-    , timeRemaining: number
+    , best_time: number | null
+    , contest_image: string
+    , time_remaining: number
 }

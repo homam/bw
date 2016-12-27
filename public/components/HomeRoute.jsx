@@ -12,11 +12,11 @@ const constructContestItem = (item: Object): ContestItem => {
     const {contest_id, name, best_time, contest_image, time_remaining} = item
 
     return {
-        contestId: contest_id
+        contest_id: contest_id
         , name
-        , bestTime: best_time
-        , contestImage: `https://prizefrenzy.com/api/games/${contest_image}`
-        , timeRemaining: time_remaining
+        , best_time: best_time
+        , contest_image: `https://prizefrenzy.com/api/games/${contest_image}`
+        , time_remaining: time_remaining
     }
 }
 
@@ -25,14 +25,14 @@ module.exports = React.createClass({
 
     render() {
 
-        const ContestThumbList = R.map(({contestId, name, bestTime, contestImage, timeRemaining})=>
+        const ContestThumbList = R.map(({contest_id, name, best_time, contest_image, time_remaining})=>
             <ContestThumb
-                key={contestId}
-                contestId={contestId}
+                key={contest_id}
+                contestId={contest_id}
                 name={name}
-                bestTime={bestTime}
-                contestImage={contestImage}
-                timeRemaining={timeRemaining} />
+                bestTime={best_time}
+                contestImage={contest_image}
+                timeRemaining={time_remaining} />
         )(this.state.contestList)
 
         return (
