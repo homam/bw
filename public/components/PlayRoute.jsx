@@ -37,7 +37,7 @@ module.exports = React.createClass({
                     .then(({answer_result, is_completed})=> {
 
                         if (is_completed) {
-                            console.log('completed')
+                            window.location.href = `/#/contest/${this.state.contestId}/congrats`
                         } else {
                             // update status of the current question (answer was correct ot wrong)
                             this.setState({
