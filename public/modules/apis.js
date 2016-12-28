@@ -2,8 +2,8 @@
 
 const axios = require('axios')
 const R = require('ramda')
-const {authKey, contestApi, quizApi, answerApi} = require('../config')
-import type {QuizPayload, AnswerPayload, ContestItem, QuestionItem, OptionItem} from "../../types.js"
+const {authKey, contestApi, quizApi, answerApi, imagePath} = require('../config')
+import type {QuizPayload, AnswerPayload, ContestItem, QuestionItem, OptionItem, Answer} from "../../types.js"
 
 
 const calculateHash = (payloadString: string): string => {
@@ -26,18 +26,8 @@ const constructContestItem = (item: Object): ContestItem => {
         contest_id: contest_id
         , name
         , best_time: best_time
-        , contest_image: `https://prizefrenzy.com/api/games/${contest_image}`
+        , contest_image: `${imagePath}${contest_image}`
         , time_remaining: time_remaining
-    }
-}
-
-
-const constructOptionItem = (type: string, item: Object): OptionItem => {
-    const {title, description} = item
-
-    return {
-        title: (type == 'image') ? `https://prizefrenzy.com/api/games/${title}` : title
-        , description: description
     }
 }
 
@@ -105,10 +95,7 @@ const getContestQuiz = (url: string, authKey: string, contestId: number, questio
                     return {
                         ...item
                         , options: R.compose(
-                            R.map(
-                                R.curry(constructOptionItem)(item.option_type)
-                            )
-                            , R.prop('Options')
+                            R.prop('Options')
                             , JSON.parse
                             , R.prop('options')
                         )(item)
@@ -124,7 +111,7 @@ const getContestQuiz = (url: string, authKey: string, contestId: number, questio
 }
 
 
-const answerQuiz = (url: string, authKey: string, contestId: number, questionId: number, questionNumber: number, answer: string): Promise<Object> => {
+const answerQuiz = (url: string, authKey: string, contestId: number, questionId: number, questionNumber: number, answer: string): Promise<Answer> => {
 
     const hash = R.compose(calculateHash, constructAnswerPayloadString)(contestId, questionId, questionNumber, answer)
 
@@ -135,7 +122,13 @@ const answerQuiz = (url: string, authKey: string, contestId: number, questionId:
         , answer: answer
     }
 
-    return apiRequest(url, authKey, hash, payload)
+    return new Promise((resolve, reject)=>
+        apiRequest(url, authKey, hash, payload)
+        .then(({data})=>
+            resolve(R.prop('data')(data))
+        )
+        .catch((err)=> reject(err))
+    )
 }
 
 

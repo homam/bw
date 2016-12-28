@@ -2,5 +2,6 @@
     "authKey": "2Tfdg1VfsygbQZIYsD0yoV4emx9sM8SXrLiyr7Et",
     "contestApi": "/api/games/contest/list",
     "quizApi": "/api/games/contest/quiz",
-    "answerApi": "/api/games/contest/answer"
+    "answerApi": "/api/games/contest/answer",
+    "imagePath": "https://prizefrenzy.com/api/games/"
 }
