@@ -34,4 +34,16 @@ export type QuestionItem = {
     , total_questions: number
     , question_number: number
     , contest_id: number
+    , _status: {
+        answered: boolean
+        , isCorrect: boolean
+        , answer: string
+    } | null
+}
+
+export type Answer = {
+    answer_result: string
+    , fastest_player: string | boolean
+    , is_completed: boolean
+    , result_message: string
 }
