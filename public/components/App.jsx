@@ -2,6 +2,7 @@
 
 const ReactDOM = require('react-dom')
 const React = require('react')
+const R = require('ramda')
 const {Router, Route, IndexRoute, browserHistory, hashHistory} = require('react-router')
 
 const Header = require('./Header.jsx')
@@ -13,9 +14,11 @@ const CongratsRoute = require('./CongratsRoute.jsx')
 const App = React.createClass({
 
     render() {
+        const currentRouteName = R.path(['routes', 1, 'component', 'displayName'])(this.props)
+
         return (
             <div className="container">
-                <Header />
+                <Header routeName={currentRouteName} />
                 {this.props.children}
             </div>
         )
