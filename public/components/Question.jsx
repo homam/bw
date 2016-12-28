@@ -31,10 +31,16 @@ module.exports = (props)=> {
 
             <div className="question-container">
                 <div className="row">
-                    <div className="small-12 columns">level N</div>
-                    <div className="small-12 columns">
+                    <div className="small-12 columns level-info">Level 1</div>
+                </div>
+                <div className="row">
+                    <div className="small-3 columns">d</div>
+                    <div className="small-6 columns">
                         <ProgressBar progress={progress} />
                     </div>
+                    <div className="small-3 columns"></div>
+                </div>
+                <div className="row">
                     <div className="small-12 columns title">{title}</div>
                     <div className="small-12 columns options-row">{Options}</div>
                 </div>
