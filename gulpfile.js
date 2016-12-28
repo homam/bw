@@ -26,6 +26,10 @@ gulp.task('build:scripts', () => {
         .transform(babelify, { presets: ['es2015', 'react', 'stage-2'] })
         .bundle()
         .pipe(fs.createWriteStream('./public/bundle.js'));
+    browserify('./public/sw.js')
+        .transform(babelify, { presets: ['es2015', 'stage-2'] })
+        .bundle()
+        .pipe(fs.createWriteStream('./public/sw-c.js'));
 });
 
 

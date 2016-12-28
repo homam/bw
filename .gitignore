@@ -1,4 +1,6 @@
 /node_modules
 /public/bundle.js
+/public/sw-c.js
 /public/components/App.css
 config.js
+npm-debug.log

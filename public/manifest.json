@@ -1,0 +1,16 @@
+{
+  "name": "Big Win",
+  "short_name": "Big Win",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "theme_color": "#ff0000",
+  "background_color": "#fff",
+  "icons": [
+    {
+      "src": "/icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
