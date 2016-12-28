@@ -39,7 +39,6 @@ module.exports = React.createClass({
 
         return (
             <div className="home-route">
-                Home route
                 {ContestThumbList}
             </div>
         )
