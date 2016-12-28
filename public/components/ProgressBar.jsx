@@ -1,6 +1,8 @@
+// @flow
+
 const React = require('react')
 
-module.exports = (props)=> {
+module.exports = (props:{progress: number})=> {
 
     const progressBarStyle = {width: `${props.progress}%`}
 
