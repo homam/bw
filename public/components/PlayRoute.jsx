@@ -18,8 +18,8 @@ module.exports = React.createClass({
         const prevQuestions = R.init(this.state.questions)
 
         const QuestionElem = R.map((currentQuestion)=> {
-            const question_number = currentQuestion.question_number
-            const total_questions = currentQuestion.total_questions
+            const questionNumber = currentQuestion.question_number
+            const totalQuestions = currentQuestion.total_questions
 
             const {option_type, options, title, question_id, _status} = currentQuestion
 
@@ -28,10 +28,12 @@ module.exports = React.createClass({
                 optionType={option_type}
                 options={options}
                 title={title}
+                questionNumber={questionNumber}
+                totalQuestions={totalQuestions}
                 status={_status}
                 onAnswer={(title)=> {
 
-                    answerQuiz(this.state.contestId, question_id, question_number, title)
+                    answerQuiz(this.state.contestId, question_id, questionNumber, title)
                     .then(({answer_result, is_completed})=> {
 
                         if (is_completed) {
@@ -47,7 +49,7 @@ module.exports = React.createClass({
 
                             // if answer was correct, load the next question
                             if (answer_result == "correct") {
-                                getContestQuiz(this.state.contestId, question_number + 1)
+                                getContestQuiz(this.state.contestId, questionNumber + 1)
                                 .then((question)=> {
 
                                     const newQuestion = {...question, _status: {answered: false}}
