@@ -1,14 +1,17 @@
 const React = require('react')
 
-module.exports = (props)=> {
+module.exports = React.createClass({
 
-    return (
-        <div className="congrats-route">
+    displayName: 'congrats-route'
 
-            <div className="row">
-                <div className="small-12 column">Congrats</div>
-            </div>
+    , render() {
+        return (
+            <div className="congrats-route">
 
-        </div>
-    )
-}
+                <div className="row">
+                    <div className="small-12 column">Congrats</div>
+                </div>
+
+            </div>)
+    }
+})

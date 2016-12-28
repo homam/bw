@@ -12,7 +12,9 @@ const Question = require('./Question.jsx')
 
 module.exports = React.createClass({
 
-    render() {
+    displayName: 'play-route'
+
+    , render() {
 
         const currentQuestion = (R.isEmpty(this.state.questions)) ? [] : [R.last(this.state.questions)]
         const prevQuestions = R.init(this.state.questions)

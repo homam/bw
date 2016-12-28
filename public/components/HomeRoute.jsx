@@ -23,7 +23,9 @@ const constructContestItem = (item: Object): ContestItem => {
 
 module.exports = React.createClass({
 
-    render() {
+    displayName: 'home-route'
+
+    , render() {
 
         const ContestThumbList = R.map(({contest_id, name, best_time, contest_image, time_remaining})=>
             <ContestThumb
