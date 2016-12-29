@@ -9,6 +9,7 @@ const Header = require('./Header.jsx')
 const HomeRoute = require('./HomeRoute.jsx')
 const PlayRoute = require('./PlayRoute.jsx')
 const CongratsRoute = require('./CongratsRoute.jsx')
+const Menu = require('./Menu.jsx')
 
 
 const App = React.createClass({
@@ -16,12 +17,18 @@ const App = React.createClass({
     render() {
         const currentRouteName = R.path(['routes', 1, 'component', 'displayName'])(this.props)
 
-        return (
-            <div className="container">
-                <Header routeName={currentRouteName} />
-                {this.props.children}
+        return (<div className="container">
+            <div className="off-canvas-wrap" data-offcanvas>
+                <div className="inner-wrap">
+
+                    <Menu />
+                    <Header routeName={currentRouteName} />
+                    {this.props.children}
+                    <a className="exit-off-canvas"></a>
+
+                </div>
             </div>
-        )
+        </div>)
     }
 
 })
