@@ -8,7 +8,7 @@ module.exports = ReactTimeout(React.createClass({
 
         const time = moment(this.state.elapsed)
 
-        return <p>{time.format('mm: ss: SSS')}</p>
+        return <div className="timer-component">{time.format('mm: ss: SSS')}</div>
     }
 
     , getInitialState() {
