@@ -1,0 +1,61 @@
+.leader-board-item {
+  background-color: white
+  display: flex
+  justify-content: flex-start
+  height: 48px
+  overflow: hidden
+  border-bottom: solid 1px silver
+  width: 90%
+  margin-left: 5%
+
+  &:nth-child(1) {
+    border-top: 1px
+    border-top-left-radius: 7px
+    border-top-right-radius: 7px
+  }
+  &:last-child {
+    border-bottom: 1px
+    border-bottom-left-radius: 7px
+    border-bottom-right-radius: 7px
+  }
+  &.me {
+    border: solid 2px rgb(238, 187, 67)
+    border-radius: 7px
+    box-shadow: 0px 3px 5px rgb(80,80,80)
+    width: 100%
+    margin-left: 0%
+    font-weight: bold
+    .rank {
+      background-color: rgb(238, 187, 67)
+    }
+  }
+  > span {
+    display: block
+
+    &.rank {
+      align-self: center
+      width: 30px
+      height: 30px
+      min-width: 30px
+      max-width: 30px
+      background-color: rgb(219,219,219)
+      border-radius: 50%
+      display: flex
+      align-items: center
+      justify-content: center
+      margin-left: 8px
+    }
+    &.name {
+      padding: 0 0 0 8px
+      align-self: center
+      flex: 1 0 0
+    }
+    &.time {
+      margin-right: 8px
+      min-width: 70px
+      max-width: 70px
+      align-self: center
+      text-align: right
+    }
+  }
+}
