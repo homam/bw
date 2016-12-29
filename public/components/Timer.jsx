@@ -1,7 +1,8 @@
 const React = require('react')
 const moment = require('moment')
+const ReactTimeout = require('react-timeout')
 
-module.exports = React.createClass({
+module.exports = ReactTimeout(React.createClass({
 
     render() {
 
@@ -15,12 +16,12 @@ module.exports = React.createClass({
     }
 
     , componentDidMount() {
-        setTimeout(this.tick, 50)
+        this.props.setTimeout(this.tick, 50)
     }
 
     , tick() {
         this.setState({elapsed: new Date() - this.props.startTime})
-        setTimeout(this.tick, 50)
+        this.props.setTimeout(this.tick, 50)
     }
 
-})
+}))
