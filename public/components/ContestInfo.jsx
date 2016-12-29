@@ -1,16 +1,14 @@
 const React = require('react')
-const moment = require('moment')
 
-module.exports = (props)=> {
+const Timer = require('./Timer.jsx')
 
-    const time = moment(props.time)
-    const mm = time.get('minutes')
-    const ss = time.get('seconds')
-    const ms = time.get('millisecond')
+module.exports = (props:{startTime: number})=> {
 
     return (
         <div className="contest-info-component">
-            {mm}: {ss}: {ms}
+            <div className="container">
+                <Timer startTime={props.startTime}/>
+            </div>
         </div>
     )
 }

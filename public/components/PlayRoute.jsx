@@ -66,7 +66,7 @@ module.exports = React.createClass({
         })(currentQuestion)
 
         return (<div className="play-route">
-            <ContestInfo time={this.state.startingTime} />
+            <ContestInfo startTime={this.state.startTime} />
             {QuestionElem}
         </div>)
     }
@@ -78,11 +78,11 @@ module.exports = React.createClass({
         const initialState: {
             contestId: number
             , questions: Array<QuestionItem>
-            , startingTime: number
+            , startTime: number
         } = {
             contestId: parseInt(contestId)
             , questions: []
-            , startingTime: 0
+            , startTime: Date.now()
         }
 
         return initialState
