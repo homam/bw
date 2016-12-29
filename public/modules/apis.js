@@ -12,20 +12,18 @@ const pMemoize = (f)=> {
         const key = JSON.stringify(args)
         const valueInCache = R.prop(key, cache)
 
-        if (!!valueInCache) {
-            return new Promise((resolve)=> {
+        return new Promise((resolve, reject)=> {
+            if (!!valueInCache) {
                 resolve(valueInCache)
-            })
-        } else {
-            return new Promise((resolve, reject)=> {
+            } else {
                 f(args)
                 .then((d)=> {
                     cache[`${key}`] = d
                     return resolve(d)
                 })
                 .catch(reject)
-            })
-        }
+            }
+        })
     }
 }
 
