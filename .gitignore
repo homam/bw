@@ -2,3 +2,4 @@
 /public/bundle.js
 /public/components/App.css
 config.js
+*.DS_Store
