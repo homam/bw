@@ -4,6 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "postinstall": "cp ./config.temp.js ./config.js",
+    "start": "./node_modules/.bin/gulp",
     "dev": "./node_modules/.bin/gulp",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -38,5 +40,8 @@
     "gulp-nodemon": "^2.0.7",
     "gulp-stylus": "^2.4.0",
     "nib": "^1.1.0"
+  },
+  "engines": {
+    "node": "7.3.0"
   }
 }

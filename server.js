@@ -1,7 +1,8 @@
 // @flow
 
 const express = require('express')
-const {port} = require('./config')
+const config = require('./config')
+const port = process.env.PORT || config.port
 
 const app = express()
 
