@@ -3,7 +3,7 @@
 const React = require('react')
 const R = require('ramda')
 const moment = require('moment')
-const {getContestQuiz, answerQuiz} = require('../modules/apis')
+const {getContestQuiz, answerQuiz, getContestList} = require('../modules/apis')
 import type {QuestionItem} from "../../types.js";
 
 const ContestInfo = require('./ContestInfo.jsx')
@@ -65,8 +65,20 @@ module.exports = React.createClass({
             />)
         })(currentQuestion)
 
+        const ContestInfoElem = R.compose(
+            R.map((contestItem)=> {
+                return (<ContestInfo
+                    key={contestItem.contest_id}
+                    contestItem={contestItem}
+                    startTime={this.state.startTime}
+                />)
+            })
+            , R.filter((contestItem)=> contestItem.contest_id == this.state.contestId)
+        )(this.state.contestList)
+
+
         return (<div className="play-route">
-            <ContestInfo startTime={this.state.startTime} />
+            {ContestInfoElem}
             {QuestionElem}
         </div>)
     }
@@ -79,16 +91,23 @@ module.exports = React.createClass({
             contestId: number
             , questions: Array<QuestionItem>
             , startTime: number
+            , contestList: Array<ContestItem>
         } = {
             contestId: parseInt(contestId)
             , questions: []
             , startTime: Date.now()
+            , contestList: []
         }
 
         return initialState
     }
 
     , componentDidMount() {
+
+        getContestList()
+        .then((contestList)=> {
+            this.setState({contestList: contestList})
+        })
 
         getContestQuiz(this.state.contestId, 0)
         .then((question)=> {
