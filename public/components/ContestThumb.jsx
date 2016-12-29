@@ -33,11 +33,11 @@ module.exports = (props)=> {
 
                 <div className="row">
                     <div className="small-6 columns">
-                        <p>Best Time:</p>
-                        <p>{time.format('mm: ss: SS')}</p>
+                        <p className="time-title">Best Time:</p>
+                        <p className="time-value">{time.format('mm: ss: SS')}</p>
                     </div>
                     <div className="small-6 columns">
-                        <p>LEADERBOARD</p>
+                        <p className="leaderboard-title">LEADERBOARD</p>
                     </div>
                 </div>
             </div>

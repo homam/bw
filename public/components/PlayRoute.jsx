@@ -8,6 +8,7 @@ import type {QuestionItem} from "../../types.js";
 
 const ContestInfo = require('./ContestInfo.jsx')
 const Question = require('./Question.jsx')
+const Penalty = require('./Penalty.jsx')
 
 
 module.exports = React.createClass({
@@ -60,6 +61,7 @@ module.exports = React.createClass({
                             } else {
                                 // add penalty seconds
                                 this.setState({penaltyMs: this.state.penaltyMs + 1000})
+                                this.showPenalty()
                             }
                         }
 
@@ -80,10 +82,14 @@ module.exports = React.createClass({
             , R.filter((contestItem)=> contestItem.contest_id == this.state.contestId)
         )(this.state.contestList)
 
+        const penaltyClass = this.state.showPenalty ? 'show' : 'hide'
 
         return (<div className="play-route">
             {ContestInfoElem}
             {QuestionElem}
+            <div className={'penalty ' + penaltyClass}>
+                <Penalty />
+            </div>
         </div>)
     }
 
@@ -97,12 +103,14 @@ module.exports = React.createClass({
             , startTime: number
             , contestList: Array<ContestItem>
             , penaltyMs: number
+            , showPenalty: boolean
         } = {
             contestId: parseInt(contestId)
             , questions: []
             , startTime: Date.now()
             , contestList: []
             , penaltyMs: 0
+            , showPenalty: false
         }
 
         return initialState
@@ -122,5 +130,11 @@ module.exports = React.createClass({
             this.setState({questions: R.append(newQuestion, this.state.questions)})
         })
 
+    }
+
+    , showPenalty() {
+        this.setState({showPenalty: true})
+
+        setTimeout(()=> this.setState({showPenalty: false}), 3000)
     }
 })
