@@ -1,6 +1,6 @@
 .contest-thumb
 
-    .box
+    .container
         position relative
         display block
         margin 20px
@@ -10,12 +10,28 @@
         font-family "Helvetica Neue"
 
         .header
-            background-color #000
+            background url(/img/bg-blue.png)
+            background-position center
 
-            .product-name
-                color #ffa500
+            .title
+                color #000
+                font-size 30px
+                font-weight bold
+
+            // .image-container
+            //     display flex
+            //     height 100%
 
             .button
-                background-color #ffa500
-                color #000
+                background -webkit-linear-gradient(top, #DA322C 0%, #B92B2A 44%, #DA322C 100%)
+                color #FFF
                 font-weight bold
+                width 100%
+
+            .contest-info-container
+                display flex
+                align-items center
+                
+        p
+            margin 0
+            color #A1A1A1
