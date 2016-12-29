@@ -3,7 +3,7 @@
 const React = require('react')
 const R = require('ramda')
 const moment = require('moment')
-const {getContestQuiz, answerQuiz} = require('../modules/apis')
+const {getContestQuiz, answerQuiz, getContestList} = require('../modules/apis')
 import type {QuestionItem} from "../../types.js";
 
 const ContestInfo = require('./ContestInfo.jsx')
@@ -57,6 +57,9 @@ module.exports = React.createClass({
                                     const newQuestion = {...question, _status: {answered: false}}
                                     this.setState({questions: R.append(newQuestion, this.state.questions)})
                                 })
+                            } else {
+                                // add penalty seconds
+                                this.setState({penaltyMs: this.state.penaltyMs + 1000})
                             }
                         }
 
@@ -65,8 +68,21 @@ module.exports = React.createClass({
             />)
         })(currentQuestion)
 
+        const ContestInfoElem = R.compose(
+            R.map((contestItem)=> {
+                return (<ContestInfo
+                    key={contestItem.contest_id}
+                    contestItem={contestItem}
+                    startTime={this.state.startTime}
+                    penaltyMs={this.state.penaltyMs}
+                />)
+            })
+            , R.filter((contestItem)=> contestItem.contest_id == this.state.contestId)
+        )(this.state.contestList)
+
+
         return (<div className="play-route">
-            <ContestInfo time={this.state.startingTime} />
+            {ContestInfoElem}
             {QuestionElem}
         </div>)
     }
@@ -78,17 +94,26 @@ module.exports = React.createClass({
         const initialState: {
             contestId: number
             , questions: Array<QuestionItem>
-            , startingTime: number
+            , startTime: number
+            , contestList: Array<ContestItem>
+            , penaltyMs: number
         } = {
             contestId: parseInt(contestId)
             , questions: []
-            , startingTime: 0
+            , startTime: Date.now()
+            , contestList: []
+            , penaltyMs: 0
         }
 
         return initialState
     }
 
     , componentDidMount() {
+
+        getContestList()
+        .then((contestList)=> {
+            this.setState({contestList: contestList})
+        })
 
         getContestQuiz(this.state.contestId, 0)
         .then((question)=> {

@@ -1,16 +1,27 @@
 const React = require('react')
-const moment = require('moment')
+import type {ContestItem} from "../../types.js";
 
-module.exports = (props)=> {
+const Timer = require('./Timer.jsx')
 
-    const time = moment(props.time)
-    const mm = time.get('minutes')
-    const ss = time.get('seconds')
-    const ms = time.get('millisecond')
+module.exports = ({contestItem, startTime, penaltyMs}:{contestItem: ContestItem, startTime: number, penaltyMs: number})=> {
+
+    const {contest_id, name, best_time, contest_image, time_remaining} = contestItem
 
     return (
         <div className="contest-info-component">
-            {mm}: {ss}: {ms}
+            <div className="row container">
+                <div className="small-3 columns image-container">
+                    <img src={contest_image} />
+                </div>
+                <div className="small-9 columns">
+                    <div className="row title">
+                        {name}
+                    </div>
+                    <div className="row">
+                        <Timer startTime={startTime} penaltyMs={penaltyMs}/>
+                    </div>
+                </div>
+            </div>
         </div>
     )
 }

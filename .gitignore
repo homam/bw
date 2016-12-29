@@ -4,3 +4,4 @@
 /public/components/App.css
 config.js
 npm-debug.log
+*.DS_Store
