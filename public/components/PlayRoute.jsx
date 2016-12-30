@@ -89,7 +89,7 @@ module.exports = React.createClass({
             , R.filter((contestItem)=> contestItem.contest_id == this.state.contestId)
         )(this.state.contestList)
 
-        const penaltyClass = this.state.showPenalty ? 'show' : 'hide'
+        const penaltyClass = this.state.showPenalty ? 'in' : ''
 
         return (<div className="play-route">
             {ContestInfoElem}
