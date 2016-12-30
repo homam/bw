@@ -37,7 +37,7 @@ module.exports = (props)=> {
                         <p className="time-value">{time.format('mm: ss: SS')}</p>
                     </div>
                     <div className="small-6 columns">
-                        <p className="leaderboard-title">LEADERBOARD</p>
+                        <p className="leaderboard-title">LEADERBOARD &gt;</p>
                     </div>
                 </div>
             </div>
