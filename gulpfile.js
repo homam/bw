@@ -24,7 +24,7 @@ gulp.task('typecheck', function() {
     }))
 });
 
-gulp.task('build:scripts', () => {
+gulp.task('build:scripts', (done) => {
     const t1 = browserify('./public/components/App.jsx')
         .transform(babelify, { presets: ['es2015', 'react', 'stage-2'] })
         .bundle()
@@ -36,7 +36,7 @@ gulp.task('build:scripts', () => {
         .pipe(source('sw-c.js'))
         .pipe(gulp.dest('./public'))
 
-    return es.merge.apply(null, [t1, t2]);
+    es.merge.apply(null, [t1, t2]).on('end', done);
 });
 
 

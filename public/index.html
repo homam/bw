@@ -25,7 +25,13 @@
 
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/foundation/5.4.6/js/foundation.min.js"></script>
-    <script>$(document).foundation();</script>
+    <script>
+      $(document).foundation();
+      $(document).on('close.fndtn.offcanvas', '[data-offcanvas]', function (e) {
+        // related to Header.jsx
+        $('.off-canvas-wrap').css({"overflow-y": 'auto'})
+      });
+    </script>
 
 </body>
 </html>
