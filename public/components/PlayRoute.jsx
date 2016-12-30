@@ -11,6 +11,11 @@ const Question = require('./Question.jsx')
 const Penalty = require('./Penalty.jsx')
 
 
+const vibrateDevice = (ms: number)=> {
+    if (!!navigator.vibrate)
+        navigator.vibrate(ms)
+}
+
 module.exports = React.createClass({
 
     displayName: 'play-route'
@@ -62,6 +67,8 @@ module.exports = React.createClass({
                                 // add penalty seconds
                                 this.setState({penaltyMs: this.state.penaltyMs + 1000})
                                 this.showPenalty()
+
+                                vibrateDevice(500)
                             }
                         }
 
