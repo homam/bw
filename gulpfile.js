@@ -6,6 +6,9 @@ const stylus = require('gulp-stylus');
 const nib = require('nib');
 const babelify = require('babelify');
 const flow = require('gulp-flowtype');
+const runSequence = require('run-sequence');
+const source = require('vinyl-source-stream');
+const es = require('event-stream');
 
 gulp.task('build', ['build:scripts', 'build:styles']);
 
@@ -22,14 +25,18 @@ gulp.task('typecheck', function() {
 });
 
 gulp.task('build:scripts', () => {
-    browserify('./public/components/App.jsx')
+    const t1 = browserify('./public/components/App.jsx')
         .transform(babelify, { presets: ['es2015', 'react', 'stage-2'] })
         .bundle()
-        .pipe(fs.createWriteStream('./public/bundle.js'));
-    browserify('./public/sw.js')
+        .pipe(source('bundle.js'))
+        .pipe(gulp.dest('./public'))
+    const t2 = browserify('./public/sw.js')
         .transform(babelify, { presets: ['es2015', 'stage-2'] })
         .bundle()
-        .pipe(fs.createWriteStream('./public/sw-c.js'));
+        .pipe(source('sw-c.js'))
+        .pipe(gulp.dest('./public'))
+
+    return es.merge.apply(null, [t1, t2]);
 });
 
 
@@ -40,17 +47,26 @@ gulp.task('build:styles', () => {
 });
 
 
-gulp.task('watch', () =>
-    gulp.watch(['public/modules/*.js', 'public/components/*.jsx', 'public/components/*.styl'], ['build'])
-);
+gulp.task('watch', () => {
+    return gulp.watch(['public/modules/*.js', 'public/components/*.jsx', 'public/components/*.styl'], ['build'])
+});
 
 
 gulp.task('develop', () => {
     nodemon({
         script: './server.js',
         execMap: 'babel-node',
+        ignore: [
+          'public/',
+          'build/'
+        ],
+        tasks: files => {
+          // console.log(files)
+          const fs = files.filter(f => f.endsWith('/server.js'))
+          return fs
+        }
     });
 });
 
 
-gulp.task('default', ['build', 'watch', 'develop']);
+gulp.task('default', runSequence('build', 'watch', 'develop'));
