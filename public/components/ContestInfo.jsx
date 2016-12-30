@@ -11,13 +11,13 @@ module.exports = ({contestItem, startTime, penaltyMs}:{contestItem: ContestItem,
         <div className="contest-info-component">
             <div className="row container">
                 <div className="small-3 columns image-container">
-                    <img src={contest_image} />
+                    <div className="contest-image" style={{backgroundImage: `url('${contest_image}')`}} />
                 </div>
                 <div className="small-9 columns">
                     <div className="row title">
                         {name}
                     </div>
-                    <div className="row">
+                    <div className="row timer">
                         <Timer startTime={startTime} penaltyMs={penaltyMs}/>
                     </div>
                 </div>
