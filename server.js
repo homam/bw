@@ -7,8 +7,8 @@ const httpProxy = require('http-proxy');
 const apiProxy = httpProxy.createProxyServer({changeOrigin: true});
 
 apiProxy.on('proxyRes', function (proxyRes, req, res) {
-  console.log(req)
-  console.log('RAW Response from the target', JSON.stringify(proxyRes.headers, true, 2));
+  // console.log(req)
+  // console.log('RAW Response from the target', JSON.stringify(proxyRes.headers, null, 2));
 });
 
 const app = express()
