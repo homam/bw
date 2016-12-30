@@ -50,7 +50,7 @@ module.exports = React.createClass({
                             // update status of the current question (answer was correct ot wrong)
                             this.setState({
                                 questions: R.append(
-                                    {...currentQuestion, _status: {answered: true, correct: answer_result == "correct", answer: title}}
+                                    {...currentQuestion, _status: {answered: true, isCorrect: answer_result == "correct", answer: title}}
                                     , prevQuestions
                                 )
                             })
