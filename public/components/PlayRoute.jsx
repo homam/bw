@@ -9,6 +9,8 @@ import type {QuestionItem} from "../../types.js";
 const ContestInfo = require('./ContestInfo.jsx')
 const Question = require('./Question.jsx')
 const Penalty = require('./Penalty.jsx')
+const PlayCountdown = require('./PlayCountdown.jsx')
+const playCountdownFrom = 4
 
 
 const vibrateDevice = (ms: number)=> {
@@ -91,9 +93,12 @@ module.exports = React.createClass({
 
         const penaltyClass = this.state.showPenalty ? 'in' : ''
 
-        return (<div className="play-route">
+        return (<div className={"play-route" + (this.state.showTimer ? ' show-timer' : '')}>
             {ContestInfoElem}
-            {QuestionElem}
+            <div className='play-route-content'>
+              {this.state.showTimer ? <PlayCountdown from={playCountdownFrom} /> : ''}
+              {QuestionElem}
+            </div>
             <div className={'penalty ' + penaltyClass}>
                 <Penalty />
             </div>
@@ -108,9 +113,11 @@ module.exports = React.createClass({
             contestId: number
             , questions: Array<QuestionItem>
             , startTime: number
+            //TODO: state must be a single ContestItem
             , contestList: Array<ContestItem>
             , penaltyMs: number
             , showPenalty: boolean
+            , showTimer: boolean
         } = {
             contestId: parseInt(contestId)
             , questions: []
@@ -118,12 +125,19 @@ module.exports = React.createClass({
             , contestList: []
             , penaltyMs: 0
             , showPenalty: false
+            , showTimer: true
         }
 
         return initialState
     }
 
+    , _initTimer: null
+
     , componentDidMount() {
+
+        this._initTimer = window.setTimeout(() => {
+            this.setState({showTimer: false})
+        }, (playCountdownFrom + 1) * 1000)
 
         getContestList()
         .then((contestList)=> {
@@ -137,6 +151,9 @@ module.exports = React.createClass({
             this.setState({questions: R.append(newQuestion, this.state.questions)})
         })
 
+    }
+    , componentWillUnmount() {
+        window.clearTimeout(this._initTimer)
     }
 
     , showPenalty() {

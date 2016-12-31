@@ -9,3 +9,27 @@
 
         &.in
           transform: translate(0, 0px);
+
+    .play-route-content
+        min-height: 428px;
+        width: 380px;
+        margin: 8px auto 0 auto;
+        background: url(/img/bg-curtain.png) #000;
+        border-radius: 5px;
+        background-repeat: no-repeat;
+        padding-bottom: 22px;
+        position: relative;
+
+    .question-component
+      transition: opacity 0.5s
+
+    &.show-timer
+      .playCountdown
+        position: absolute;
+        top: 120px
+        left: 0
+        right: 0
+        text-align: center;
+
+      .question-component
+        opacity: 0
