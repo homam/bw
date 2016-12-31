@@ -11,7 +11,7 @@ const ContestInfo = require('./ContestInfo.jsx')
 const Question = require('./Question.jsx')
 const Penalty = require('./Penalty.jsx')
 const PlayCountdown = require('./PlayCountdown.jsx')
-const playCountdownFrom = 1
+const playCountdownFrom = 4
 const sfx = require('../modules/sfx')
 
 
