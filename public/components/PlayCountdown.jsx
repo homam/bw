@@ -1,6 +1,8 @@
 // @flow
 
 const React = require('react')
+const sfx = require('../modules/sfx')
+
 
 type CountdownProps = {from: number}
 
@@ -18,6 +20,7 @@ class Countdown extends React.Component  {
       this.refs.time.className = 'playCountdown'
       this.refs.time.innerHTML = ''
       setTimeout(() => {
+        sfx.beep.play()
         this.refs.time.className = 'playCountdown time'
         this.refs.time.innerHTML = time > 0 ? time.toString() : 'GO!'
       }, 100)

@@ -12,6 +12,7 @@ const Question = require('./Question.jsx')
 const Penalty = require('./Penalty.jsx')
 const PlayCountdown = require('./PlayCountdown.jsx')
 const playCountdownFrom = 4
+const sfx = require('../modules/sfx')
 
 
 const vibrateDevice = (ms: number)=> {
@@ -53,7 +54,7 @@ module.exports = React.createClass({
                         if (is_completed) {
                             window.location.href = `/#/contest/${this.state.contestId}/congrats`
                         } else {
-                            // update status of the current question (answer was correct ot wrong)
+                            // update status of the current question (answer was correct or wrong)
                             this.setState({
                                 questions: R.append(
                                     {...currentQuestion, _status: {answered: true, isCorrect: answer_result == "correct", answer: title}}
@@ -64,8 +65,9 @@ module.exports = React.createClass({
                             // if answer was correct, load the next question
                             if (answer_result == "correct") {
                                 // code for sequencing UI effects
+                                sfx.right.play()
                                 wait(200, () => this.setState({transitioning: true}))
-                                waitPromise(700,
+                                waitPromise(1000,
                                   getContestQuiz(this.state.contestId, questionNumber + 1)
                                   .then((question)=> {
                                       // this code runs immediately (in order to cache the photos for the next quiz)
@@ -81,6 +83,7 @@ module.exports = React.createClass({
                                 })
                             } else {
                                 // add penalty seconds
+                                sfx.wrong.play()
                                 this.setState({penaltyMs: this.state.penaltyMs + 1000})
                                 this.showPenalty()
 
@@ -106,7 +109,7 @@ module.exports = React.createClass({
         )(this.state.contestList)
 
         return (<div className={"play-route" + (this.state.showTimer ? ' show-timer' : '') + (this.state.transitioning ? ' transitioning' : '') + (this.state.showPenalty ? ' show-penalty' : '')}>
-            <div className='blocker' /> {/* used to disable interaction during the shake, penalty animation*/}
+            <div className='blocker' onMouseDown={ () => sfx.error.play() } /> {/* used to disable interaction during the shake, penalty animation*/}
             {ContestInfoElem}
             <div className='play-route-content'>
               {this.state.showTimer ? <PlayCountdown from={playCountdownFrom} /> : ''}
@@ -176,6 +179,6 @@ module.exports = React.createClass({
     , showPenalty() {
         this.setState({showPenalty: true})
 
-        setTimeout(()=> this.setState({showPenalty: false}), 820)
+        setTimeout(()=> this.setState({showPenalty: false}), 1400)
     }
 })
