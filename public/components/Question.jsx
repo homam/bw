@@ -20,11 +20,14 @@ module.exports = (props)=> {
     const Options = R.map(({title})=> {
         const src = `${imagePath}${title}`
 
-        const shakeClass = (answered && !isCorrect && answer == title) ? "shake" : ""
+        const shakeClass = (answer == title && answered && !isCorrect) ? "shake" : ""
 
-        return (<div className={`option-container ${shakeClass}`} key={title}>
+        return (<div className={`option-container ${shakeClass} ${answer == title && answered && isCorrect ? 'correct' : ''}`}
+          style={{backgroundImage: `url('${src}')`}}
+          onClick={()=> props.onAnswer(title)}
+          key={title}>
             {/*answered && answer == title && <div className="mark correct">X</div>*/}
-            <img src={src} onClick={()=> props.onAnswer(title)}/>
+            {/* <img src={src} onClick={()=> props.onAnswer(title)}/> */}
         </div>)
     })(options)
 

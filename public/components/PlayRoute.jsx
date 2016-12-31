@@ -4,6 +4,7 @@ const React = require('react')
 const R = require('ramda')
 const moment = require('moment')
 const {getContestQuiz, answerQuiz, getContestList} = require('../modules/apis')
+const {waitPromise, wait} = require('../modules/async')
 import type {QuestionItem} from "../../types.js";
 
 const ContestInfo = require('./ContestInfo.jsx')
@@ -24,9 +25,12 @@ module.exports = React.createClass({
 
     , render() {
 
-        const currentQuestion = (R.isEmpty(this.state.questions)) ? [] : [R.last(this.state.questions)]
+        const currentQuestion = (R.isEmpty(this.state.questions)) ? [] : [this.state.questions[this.state.currentQuestionIndex]]
         const prevQuestions = R.init(this.state.questions)
 
+        //TODO: why is it a map?
+        //TODO: logic has to change, render the next few questions, keep them hidden (to cache their images)
+        // find currentQuestionIndex and show the question at the this.state.currentQuestionIndex
         const QuestionElem = R.map((currentQuestion)=> {
             const questionNumber = currentQuestion.question_number
             const totalQuestions = currentQuestion.total_questions
@@ -59,11 +63,21 @@ module.exports = React.createClass({
 
                             // if answer was correct, load the next question
                             if (answer_result == "correct") {
-                                getContestQuiz(this.state.contestId, questionNumber + 1)
-                                .then((question)=> {
-
-                                    const newQuestion = {...question, _status: {answered: false}}
-                                    this.setState({questions: R.append(newQuestion, this.state.questions)})
+                                // code for sequencing UI effects
+                                wait(200, () => this.setState({transitioning: true}))
+                                waitPromise(700,
+                                  getContestQuiz(this.state.contestId, questionNumber + 1)
+                                  .then((question)=> {
+                                      // this code runs immediately (in order to cache the photos for the next quiz)
+                                      // but the parent primise returns after 700ms
+                                      const newQuestion = {...question, _status: {answered: false}}
+                                      this.setState({
+                                          questions: R.append(newQuestion, this.state.questions)
+                                      })
+                                  })
+                                ).then(() => {
+                                  // show next question
+                                  this.setState({transitioning: false, currentQuestionIndex: this.state.currentQuestionIndex + 1})
                                 })
                             } else {
                                 // add penalty seconds
@@ -91,15 +105,14 @@ module.exports = React.createClass({
             , R.filter((contestItem)=> contestItem.contest_id == this.state.contestId)
         )(this.state.contestList)
 
-        const penaltyClass = this.state.showPenalty ? 'in' : ''
-
-        return (<div className={"play-route" + (this.state.showTimer ? ' show-timer' : '')}>
+        return (<div className={"play-route" + (this.state.showTimer ? ' show-timer' : '') + (this.state.transitioning ? ' transitioning' : '') + (this.state.showPenalty ? ' show-penalty' : '')}>
+            <div className='blocker' /> {/* used to disable interaction during the shake, penalty animation*/}
             {ContestInfoElem}
             <div className='play-route-content'>
               {this.state.showTimer ? <PlayCountdown from={playCountdownFrom} /> : ''}
               {QuestionElem}
             </div>
-            <div className={'penalty ' + penaltyClass}>
+            <div className={'penalty ' + (this.state.showPenalty ? 'in' : '')}>
                 <Penalty />
             </div>
         </div>)
@@ -118,6 +131,8 @@ module.exports = React.createClass({
             , penaltyMs: number
             , showPenalty: boolean
             , showTimer: boolean
+            , transitioning: boolean
+            , currentQuestionIndex: number
         } = {
             contestId: parseInt(contestId)
             , questions: []
@@ -126,6 +141,8 @@ module.exports = React.createClass({
             , penaltyMs: 0
             , showPenalty: false
             , showTimer: true
+            , transitioning: false
+            , currentQuestionIndex: 0
         }
 
         return initialState
@@ -159,6 +176,6 @@ module.exports = React.createClass({
     , showPenalty() {
         this.setState({showPenalty: true})
 
-        setTimeout(()=> this.setState({showPenalty: false}), 3000)
+        setTimeout(()=> this.setState({showPenalty: false}), 820)
     }
 })

@@ -1,14 +1,46 @@
+@keyframes penaltyShake {
+  10%, 90% {
+    transform: translate3d( 0,-1px, 0);
+  }
+
+  20%, 80% {
+    transform: translate3d(0, 1px, 0);
+  }
+
+  30%, 50%, 70% {
+    transform: translate3d( 0, 0px, 0);
+  }
+
+  40%, 60% {
+    transform: translate3d(0, -1px, 0);
+  }
+}
+
 .play-route
 
     .penalty
         position fixed
         bottom 0
         width 100%
-        transform: translate(0, 72px);
-        transition: 0.2s;
+        transform: translate3d(0, 72px, 0);
+        transition: transform 0.82s;
 
         &.in
-          transform: translate(0, 0px);
+          transform: translate(0, 0px, 0);
+          animation: penaltyShake 0.82s cubic-bezier(.36,.07,.19,.97) both;
+
+    .blocker
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 10;
+        display: none
+
+    &.show-penalty
+        .blocker
+            display: block
 
     .play-route-content
         min-height: 428px;
@@ -21,7 +53,12 @@
         position: relative;
 
     .question-component
-      transition: opacity 0.5s
+      transition: opacity 0.2s
+
+    &.transitioning
+      .question-component
+        opacity: 0
+        transition: opacity 0.7s
 
     &.show-timer
       .playCountdown
