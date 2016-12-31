@@ -5,12 +5,12 @@ module.exports = (props)=> {
     return (<div className="menu-component">
         <div className="right-off-canvas-menu">
             <ul>
-              <li><a href="#">Games</a></li>
-              <li><a href="#">Profile</a></li>
-              <li><a className="active" href="#">Transactions</a></li>
-              <li><a href="#">Your High Scores</a></li>
-              <li><a href="#">Feedback</a></li>
-              <li><a href="#">About</a></li>
+              <li><a className="right-off-canvas-toggle" href="#">Games</a></li>
+              <li><a className="right-off-canvas-toggle" href="#">Profile</a></li>
+              <li><a className="right-off-canvas-toggle active" href="#">Transactions</a></li>
+              <li><a className="right-off-canvas-toggle" href="#">Your High Scores</a></li>
+              <li><a className="right-off-canvas-toggle" href="#">Feedback</a></li>
+              <li><a className="right-off-canvas-toggle" href="#">About</a></li>
             </ul>
         </div>
     </div>
