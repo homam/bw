@@ -11,7 +11,7 @@ const ContestInfo = require('./ContestInfo.jsx')
 const Question = require('./Question.jsx')
 const Penalty = require('./Penalty.jsx')
 const PlayCountdown = require('./PlayCountdown.jsx')
-const playCountdownFrom = 4
+const playCountdownFrom = 1
 const sfx = require('../modules/sfx')
 
 
@@ -48,6 +48,13 @@ module.exports = React.createClass({
                 status={_status}
                 onAnswer={(title)=> {
 
+                    // update status of the current question tapped
+                    this.setState({
+                        questions: R.append(
+                            {...currentQuestion, _status: {tapped: true, answer: title}}
+                            , prevQuestions
+                        )
+                    })
                     answerQuiz(this.state.contestId, question_id, questionNumber, title)
                     .then(({answer_result, is_completed})=> {
 
@@ -57,7 +64,7 @@ module.exports = React.createClass({
                             // update status of the current question (answer was correct or wrong)
                             this.setState({
                                 questions: R.append(
-                                    {...currentQuestion, _status: {answered: true, isCorrect: answer_result == "correct", answer: title}}
+                                    {...currentQuestion, _status: {tapped: true, answered: true, isCorrect: answer_result == "correct", answer: title}}
                                     , prevQuestions
                                 )
                             })
@@ -88,6 +95,16 @@ module.exports = React.createClass({
                                 this.showPenalty()
 
                                 vibrateDevice(500)
+
+                                // resetting tapped and shake classes in Question.jsx options
+                                setTimeout(() => {
+                                  this.setState({
+                                      questions: R.append(
+                                          {...currentQuestion, _status: {tapped: false, answered: false, isCorrect: null, answer: title}}
+                                          , prevQuestions
+                                      )
+                                  })
+                                }, 1500);
                             }
                         }
 

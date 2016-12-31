@@ -76,22 +76,63 @@
                 &.wrong
                     color red
 
-                &.correct
+                &.right
                     color green
 
-            &:after
-                content: ' ';
-                display: block;
-                width: 70px;
-                height: 70px;
-                background-color: silver;
-                border-radius: 50%;
-                transform: scale(1);
-                border: solid 7px green;
-                opacity: 0;
-                transition: 0.1s
+            .spinner
+                transition: opacity 0.2s;
+                opacity: 0
 
-            &.correct
-              &:after
-                border-width: 30px
-                opacity: 0.8
+            &.tapped
+
+                &.wrong, &.right
+                  .double-bounce1, .double-bounce2
+                    animation-name: none;
+                    transition: 1s;
+                    transform: scale(1)
+                    opacity: 0.4
+                &.wrong
+                    .double-bounce1, .double-bounce2
+                      background-color: #ff0000
+                &.right
+                    .double-bounce1, .double-bounce2
+                      background-color: #00ff00
+
+                .spinner
+                    transition: opacity 0.4s;
+                    opacity: 1
+
+.spinner {
+  width: 70px;
+  height: 70px;
+
+  position: relative;
+}
+
+.double-bounce1, .double-bounce2 {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: #333
+  opacity: 0.6;
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: scale(0)
+
+  animation: sk-bounce 2.0s infinite ease-in-out;
+  animation-fill-mode: forwards
+}
+
+.double-bounce2 {
+  animation-delay: -1.0s;
+}
+
+
+@keyframes sk-bounce {
+  0%, 100% {
+    transform: scale(0.0);
+  } 50% {
+    transform: scale(1.0);
+  }
+}
