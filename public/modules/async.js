@@ -1,5 +1,7 @@
 // @flow
 
+const R = require('ramda')
+
 const waitPromise = <T>(time : number, p : Promise<T>) : Promise<T> => new Promise((resolve, reject) => {
   let timedOut = false
   let cont = null
@@ -29,7 +31,17 @@ const wait = (t: number, f : () => any = () => null) => new Promise((resolve, re
   setTimeout(() => resolve(f()), t)
 })
 
+const waitSeq = (ts: Array<number>, fs: Array<() => any>)=>
+  R.map(([t, f])=> {
+    new Promise((resolve, reject) => {
+        setTimeout(() => resolve(f()), t)
+    })
+  })
+  (R.zip(ts, fs))
+
+
 module.exports = {
     waitPromise
   , wait
+  , waitSeq
 }

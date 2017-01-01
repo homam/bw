@@ -6,14 +6,16 @@ const data = [{rank: 17, name: 'Johnny', time: 4123}, {rank: 18, name: 'Homam', 
 
 module.exports = React.createClass({
 
-    displayName: 'congrats-route'
+    displayName: 'congrats-component'
 
     , render() {
         return (
-            <div className="congrats-route">
+            <div className="congrats-component">
 
                 <div className="row">
-                    <div className="small-12 column">Congrats</div>
+                    <div className="small-12 column">
+                        <img src="/img/congrats.png" />
+                    </div>
                 </div>
                 <div className="row" style={{padding: '0 10% 0 10%'}}>
                     <Leaderboard board={data} />

@@ -21,7 +21,9 @@ module.exports = ReactTimeout(React.createClass({
 
     , tick() {
         this.setState({elapsed: new Date() - this.props.startTime + this.props.penaltyMs})
-        this.props.setTimeout(this.tick, 50)
+
+        if (!this.props.pause)
+            this.props.setTimeout(this.tick, 50)
     }
 
 }))

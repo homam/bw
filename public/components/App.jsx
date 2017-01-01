@@ -8,7 +8,7 @@ const {Router, Route, IndexRoute, browserHistory, hashHistory} = require('react-
 const Header = require('./Header.jsx')
 const HomeRoute = require('./HomeRoute.jsx')
 const PlayRoute = require('./PlayRoute.jsx')
-const CongratsRoute = require('./CongratsRoute.jsx')
+// const CongratsRoute = require('./CongratsRoute.jsx')
 const Menu = require('./Menu.jsx')
 
 
@@ -39,7 +39,6 @@ ReactDOM.render(
         <Route path="/" component={App}>
             <IndexRoute component={HomeRoute}/>
             <Route path="contest/:contestId/play" component={PlayRoute}/>
-            <Route path="contest/:contestId/congrats" component={CongratsRoute}/>
         </Route>
     </Router>
     , document.getElementById('app-container')

@@ -52,11 +52,13 @@
         padding-bottom: 22px;
         position: relative;
 
-    .question-component
-      transition: opacity 0.2s
+    .question-component,
+    .congrats-component
+      transition: opacity 0.7s
 
     &.transitioning
-      .question-component
+      .question-component,
+      .congrats-component
         opacity: 0
         transition: opacity 0.7s
 

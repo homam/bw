@@ -3,7 +3,7 @@ import type {ContestItem} from "../../types.js";
 
 const Timer = require('./Timer.jsx')
 
-module.exports = ({contestItem, startTime, penaltyMs}:{contestItem: ContestItem, startTime: number, penaltyMs: number})=> {
+module.exports = ({contestItem, startTime, penaltyMs, completed}:{contestItem: ContestItem, startTime: number, penaltyMs: number, completed: boolean})=> {
 
     const {contest_id, name, best_time, contest_image, time_remaining} = contestItem
 
@@ -18,7 +18,7 @@ module.exports = ({contestItem, startTime, penaltyMs}:{contestItem: ContestItem,
                         {name}
                     </div>
                     <div className="row timer">
-                        <Timer startTime={startTime} penaltyMs={penaltyMs}/>
+                        <Timer startTime={startTime} penaltyMs={penaltyMs} pause={completed}/>
                     </div>
                 </div>
             </div>

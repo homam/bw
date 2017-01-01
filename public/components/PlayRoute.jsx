@@ -4,13 +4,14 @@ const React = require('react')
 const R = require('ramda')
 const moment = require('moment')
 const {getContestQuiz, answerQuiz, getContestList} = require('../modules/apis')
-const {waitPromise, wait} = require('../modules/async')
+const {waitPromise, wait, waitSeq} = require('../modules/async')
 import type {QuestionItem} from "../../types.js";
 
 const ContestInfo = require('./ContestInfo.jsx')
 const Question = require('./Question.jsx')
 const Penalty = require('./Penalty.jsx')
 const PlayCountdown = require('./PlayCountdown.jsx')
+const Congrats = require('./Congrats.jsx')
 const playCountdownFrom = 4
 const sfx = require('../modules/sfx')
 
@@ -59,7 +60,14 @@ module.exports = React.createClass({
                     .then(({answer_result, is_completed})=> {
 
                         if (is_completed) {
-                            window.location.href = `/#/contest/${this.state.contestId}/congrats`
+                            waitSeq(
+                                [200, 1000, 1200]
+                                , [
+                                    () => this.setState({transitioning: true})
+                                    , () => this.setState({completed: true})
+                                    , () => this.setState({transitioning: false})
+                                ]
+                            )
                         } else {
                             // update status of the current question (answer was correct or wrong)
                             this.setState({
@@ -120,6 +128,7 @@ module.exports = React.createClass({
                     contestItem={contestItem}
                     startTime={this.state.startTime}
                     penaltyMs={this.state.penaltyMs}
+                    completed={this.state.completed}
                 />)
             })
             , R.filter((contestItem)=> contestItem.contest_id == this.state.contestId)
@@ -130,7 +139,7 @@ module.exports = React.createClass({
             {ContestInfoElem}
             <div className='play-route-content'>
               {this.state.showTimer ? <PlayCountdown from={playCountdownFrom} /> : ''}
-              {QuestionElem}
+              {this.state.completed ? <Congrats /> : QuestionElem}
             </div>
             <div className={'penalty ' + (this.state.showPenalty ? 'in' : '')}>
                 <Penalty />
@@ -153,6 +162,7 @@ module.exports = React.createClass({
             , showTimer: boolean
             , transitioning: boolean
             , currentQuestionIndex: number
+            , completed: boolean
         } = {
             contestId: parseInt(contestId)
             , questions: []
@@ -163,6 +173,7 @@ module.exports = React.createClass({
             , showTimer: true
             , transitioning: false
             , currentQuestionIndex: 0
+            , completed: false
         }
 
         return initialState
