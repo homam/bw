@@ -11,8 +11,10 @@ const source = require('vinyl-source-stream');
 const es = require('event-stream');
 const buffer = require('vinyl-buffer');
 const uglify = require('gulp-uglify');
+const ifElse = require('gulp-if-else');
+const config = require('./config');
 
-process.env.NODE_ENV = 'production'
+process.env.NODE_ENV = config.env
 
 gulp.task('build', ['build:scripts', 'build:styles']);
 
@@ -33,8 +35,8 @@ gulp.task('build:scripts', (done) => {
         .transform(babelify, { presets: ['es2015', 'react', 'stage-2'] })
         .bundle()
         .pipe(source('bundle.js'))
-        .pipe(buffer())
-        .pipe(uglify())
+        .pipe(ifElse(config.env == 'production', buffer))
+        .pipe(ifElse(config.env == 'production', uglify))
         .pipe(gulp.dest('./public'))
     const t2 = browserify('./public/sw.js')
         .transform(babelify, { presets: ['es2015', 'stage-2'] })
