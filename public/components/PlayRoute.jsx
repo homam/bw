@@ -15,7 +15,6 @@ const Congrats = require('./Congrats.jsx')
 const playCountdownFrom = 4
 const sfx = require('../modules/sfx')
 
-
 const vibrateDevice = (ms: number)=> {
     if (!!navigator.vibrate)
         navigator.vibrate(ms)
