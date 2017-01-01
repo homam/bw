@@ -12,13 +12,15 @@ const Question = require('./Question.jsx')
 const Penalty = require('./Penalty.jsx')
 const PlayCountdown = require('./PlayCountdown.jsx')
 const Congrats = require('./Congrats.jsx')
-const playCountdownFrom = 4
 const sfx = require('../modules/sfx')
+const {pEachSequence} = require('../modules/utils')
 
 const vibrateDevice = (ms: number)=> {
     if (!!navigator.vibrate)
         navigator.vibrate(ms)
 }
+
+const playCountdownFrom = 4
 
 module.exports = React.createClass({
 
@@ -27,12 +29,12 @@ module.exports = React.createClass({
     , render() {
 
         const currentQuestion = (R.isEmpty(this.state.questions)) ? [] : [this.state.questions[this.state.currentQuestionIndex]]
-        const prevQuestions = R.init(this.state.questions)
+        const prevQuestions = R.take(this.state.currentQuestionIndex, this.state.questions)
 
         //TODO: why is it a map?
         //TODO: logic has to change, render the next few questions, keep them hidden (to cache their images)
         // find currentQuestionIndex and show the question at the this.state.currentQuestionIndex
-        const QuestionElem = R.map((currentQuestion)=> {
+        const QuestionElemCache = R.map((currentQuestion)=> {
             const questionNumber = currentQuestion.question_number
             const totalQuestions = currentQuestion.total_questions
 
@@ -47,14 +49,16 @@ module.exports = React.createClass({
                 totalQuestions={totalQuestions}
                 status={_status}
                 onAnswer={(title)=> {
-
                     // update status of the current question tapped
                     this.setState({
-                        questions: R.append(
-                            {...currentQuestion, _status: {tapped: true, answer: title}}
-                            , prevQuestions
-                        )
+                        questions: R.map((questionItem)=> {
+                            if (questionItem.question_number == questionNumber)
+                                return {...questionItem, _status: {tapped: true, answer: title}}
+                            else
+                                return questionItem
+                        })(this.state.questions)
                     })
+
                     answerQuiz(this.state.contestId, question_id, questionNumber, title)
                     .then(({answer_result, is_completed})=> {
 
@@ -68,33 +72,41 @@ module.exports = React.createClass({
                                 ]
                             )
                         } else {
-                            // update status of the current question (answer was correct or wrong)
                             this.setState({
-                                questions: R.append(
-                                    {...currentQuestion, _status: {tapped: true, answered: true, isCorrect: answer_result == "correct", answer: title}}
-                                    , prevQuestions
-                                )
+                                questions: R.map((questionItem)=> {
+                                    if (questionItem.question_number == questionNumber)
+                                        return {...questionItem, _status: {tapped: true, answered: true, isCorrect: answer_result == "correct", answer: title}}
+                                    else
+                                        return questionItem
+                                })(this.state.questions)
                             })
 
                             // if answer was correct, load the next question
                             if (answer_result == "correct") {
                                 // code for sequencing UI effects
                                 sfx.right.play()
+
                                 wait(200, () => this.setState({transitioning: true}))
-                                waitPromise(1000,
-                                  getContestQuiz(this.state.contestId, questionNumber + 1)
-                                  .then((question)=> {
-                                      // this code runs immediately (in order to cache the photos for the next quiz)
-                                      // but the parent primise returns after 700ms
-                                      const newQuestion = {...question, _status: {answered: false}}
-                                      this.setState({
-                                          questions: R.append(newQuestion, this.state.questions)
-                                      })
-                                  })
-                                ).then(() => {
-                                  // show next question
-                                  this.setState({transitioning: false, currentQuestionIndex: this.state.currentQuestionIndex + 1})
-                                })
+
+                                // if all questions have already beeen pre loaded
+                                if (R.length(this.state.questions) == currentQuestion.total_questions) {
+                                    wait(1000, ()=> this.setState({transitioning: false, currentQuestionIndex: this.state.currentQuestionIndex + 1}))
+                                } else {
+                                    waitPromise(1000,
+                                        getContestQuiz(this.state.contestId, R.length(this.state.questions))
+                                        .then((question)=> {
+                                            // this code runs immediately (in order to cache the photos for the next quiz)
+                                            // but the parent primise returns after 700ms
+                                            const newQuestion = {...question, _status: {answered: false}}
+                                            this.setState({
+                                                questions: R.append(newQuestion, this.state.questions)
+                                            })
+                                        })
+                                    ).then(() => {
+                                        // show next question
+                                        this.setState({transitioning: false, currentQuestionIndex: this.state.currentQuestionIndex + 1})
+                                    })
+                                }
                             } else {
                                 // add penalty seconds
                                 sfx.wrong.play()
@@ -105,12 +117,14 @@ module.exports = React.createClass({
 
                                 // resetting tapped and shake classes in Question.jsx options
                                 setTimeout(() => {
-                                  this.setState({
-                                      questions: R.append(
-                                          {...currentQuestion, _status: {tapped: false, answered: false, isCorrect: null, answer: title}}
-                                          , prevQuestions
-                                      )
-                                  })
+                                    this.setState({
+                                        questions: R.map((questionItem)=> {
+                                            if (questionItem.question_number == questionNumber)
+                                                return {...questionItem, _status: {tapped: false, answered: false, isCorrect: null, answer: title}}
+                                            else
+                                                return questionItem
+                                        })(this.state.questions)
+                                    })
                                 }, 1500);
                             }
                         }
@@ -118,7 +132,9 @@ module.exports = React.createClass({
                     })
                 }}
             />)
-        })(currentQuestion)
+        })(this.state.questions)
+
+        const QuestionElem = QuestionElemCache[this.state.currentQuestionIndex]
 
         const ContestInfoElem = R.compose(
             R.map((contestItem)=> {
@@ -191,13 +207,14 @@ module.exports = React.createClass({
             this.setState({contestList: contestList})
         })
 
-        getContestQuiz(this.state.contestId, 0)
-        .then((question)=> {
-
-            const newQuestion = {...question, _status: {answered: false}}
-            this.setState({questions: R.append(newQuestion, this.state.questions)})
-        })
-
+        // preload questions
+        pEachSequence((questionNumber)=> {
+            return getContestQuiz(this.state.contestId, questionNumber)
+            .then((question)=> {
+                const newQuestion = {...question, _status: {answered: false}}
+                this.setState({questions: R.append(newQuestion, this.state.questions)})
+            })
+        })(R.range(0, 2))
     }
     , componentWillUnmount() {
         window.clearTimeout(this._initTimer)
