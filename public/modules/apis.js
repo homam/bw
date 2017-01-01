@@ -4,28 +4,8 @@ const axios = require('axios')
 const R = require('ramda')
 const {authKey, contestApi, quizApi, answerApi, imagePath} = require('../config')
 import type {QuizPayload, AnswerPayload, ContestItem, QuestionItem, OptionItem, Answer} from "../../types.js"
+const {pMemoize} = require('./utils')
 
-const pMemoize = (f)=> {
-    const cache = {}
-
-    return (...args)=> {
-        const key = JSON.stringify(args)
-        const valueInCache = R.prop(key, cache)
-
-        return new Promise((resolve, reject)=> {
-            if (!!valueInCache) {
-                resolve(valueInCache)
-            } else {
-                f(args)
-                .then((d)=> {
-                    cache[`${key}`] = d
-                    return resolve(d)
-                })
-                .catch(reject)
-            }
-        })
-    }
-}
 
 const calculateHash = (payloadString: string): string => {
     const algString = "alg=HS256,typ=JWT"
