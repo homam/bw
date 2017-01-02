@@ -19,7 +19,7 @@ abs-container()
   right: 0;
   transform: translate3d(0, 0, 0)
 
-menu-width = 200px
+menu-width = 260px
 menu-transition()
   transition: transform 0.3s;
 
@@ -58,6 +58,8 @@ body
       overflow-y: auto
       z-index: 20
       menu-transition()
+      max-width: 360px
+      margin: auto
 
       -webkit-overflow-scrolling: touch;
 
@@ -68,9 +70,10 @@ body
         width: menu-width;
         bottom: 0;
         z-index: 120;
-        background-color: gray;
+        background-color: #333;
         menu-transition()
         transform: translate3d(menu-width, 0, 0);
+        box-shadow: inset 3px 0px 19px 3px rgba(0, 0, 0, 0.76)
 
     > .menu-blocker
       display: none
