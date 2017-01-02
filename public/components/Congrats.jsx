@@ -12,12 +12,10 @@ module.exports = React.createClass({
         return (
             <div className="congrats-component">
 
-                <div className="row">
-                    <div className="small-12 column">
-                        <img src="/img/congrats.png" />
-                    </div>
+                <div className="column">
+                  <img src="/img/congrats.png" style={{width: '271px', height: '126px'}} />
                 </div>
-                <div className="row" style={{padding: '0 10% 0 10%'}}>
+                <div style={{padding: '0 10% 0 10%'}}>
                     <Leaderboard board={data} />
                 </div>
 
