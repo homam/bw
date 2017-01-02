@@ -38,6 +38,7 @@ export type QuestionItem = {
         answered: boolean
       , isCorrect: ?boolean
       , answer: ?string
+      , tapped: ?boolean
     } | null
 }
 

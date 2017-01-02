@@ -1,10 +1,18 @@
 .progress-bar-component
 
-    .progress
-        height 15px
-        padding 0
-        border solid 1px
-        background-color #000
+  .progress
+    border-radius: 1000px;
+    height 15px
+    padding 0
+    border solid 1px
+    background-color #000
 
-        .meter
-            background #F2DC4F
+    .meter
+      background #F2DC4F
+      border-radius: 999px;
+      height: 100%;
+      display: block;
+      transition: width 0.5s;
+
+  &.success .meter
+    background: #43ac6a;

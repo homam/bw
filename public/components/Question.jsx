@@ -4,10 +4,10 @@ const React = require('react')
 const R = require('ramda')
 const {imagePath} = require('../config')
 
-const ProgressBar = require('./ProgressBar.jsx')
-
-const calculateProgress = (currentQuestion: number, totalQuestions: number): number =>
-    currentQuestion * 100 / totalQuestions
+// const ProgressBar = require('./ProgressBar.jsx')
+//
+// const calculateProgress = (currentQuestion: number, totalQuestions: number): number =>
+//     currentQuestion * 100 / totalQuestions
 
 
 module.exports = (props)=> {
@@ -15,7 +15,7 @@ module.exports = (props)=> {
     const {optionType, options, title, questionNumber, totalQuestions, status} = props
     const {answered, isCorrect, answer, tapped} = status
 
-    const progress = calculateProgress(questionNumber + 1, totalQuestions)
+    // const progress = calculateProgress(questionNumber + 1, totalQuestions)
 
     const Options = R.map(({title})=> {
         const src = `${imagePath}${title}`
@@ -38,11 +38,13 @@ module.exports = (props)=> {
     })(options)
 
 
+    //TODO: move Level 1 and Prgoress ro PlayRoute
+    //These elements should remain visible during transition from a question to next
     return (
         <div className="question-component">
 
             <div className="question-container">
-                <div className="row">
+                {/* <div className="row">
                     <div className="small-12 columns level-info">Level 1</div>
                 </div>
                 <div className="row">
@@ -51,7 +53,7 @@ module.exports = (props)=> {
                         <ProgressBar progress={progress} />
                     </div>
                     <div className="small-3 columns">&nbsp;</div>
-                </div>
+                </div> */}
                 <div className="row">
                     <div className="small-12 columns title">{title}</div>
                     <div className="small-12 columns options-row">{Options}</div>

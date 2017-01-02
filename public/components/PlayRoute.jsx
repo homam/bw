@@ -12,18 +12,22 @@ const Question = require('./Question.jsx')
 const Penalty = require('./Penalty.jsx')
 const PlayCountdown = require('./PlayCountdown.jsx')
 const Congrats = require('./Congrats.jsx')
+const ProgressBar = require('./ProgressBar.jsx')
 const playCountdownFrom = 4
 const sfx = require('../modules/sfx')
+
+const calculateProgress = (currentQuestion: number, totalQuestions: number): number =>
+    currentQuestion * 100 / totalQuestions
 
 const loadAllQuizzes = (contestId: number) : Promise<[QuestionItem]> => {
   const loadNextQuiz = (acc : Array<QuestionItem>, questionNumber: number) =>
     getContestQuiz(contestId, questionNumber).then(question => {
-        const newQuestion = {...question, _status: {answered: false, isCorrect: null, answer: null}}
-        return newQuestion
+      const newQuestion = {...question, _status: {answered: false, isCorrect: null, answer: null, tapped: false}}
+      return newQuestion
     }).then(q => {
       if(q.total_questions > questionNumber + 1)
         return loadNextQuiz(acc.concat([q]), questionNumber + 1)
-      else return acc
+      else return acc.concat([q])
     })
 
   return loadNextQuiz([], 0)
@@ -72,7 +76,7 @@ export default class PlayRouteContainer extends React.Component {
         contestItem.contest_id == this.state.contestId, contestList)})
     })
 
-    loadAllQuizzes(this.state.contestId).then((questions) => {
+    loadAllQuizzes(this.state.contestId).then(questions => {
       this.setState({questions})
       this.nextQuestion()
     })
@@ -94,15 +98,72 @@ export default class PlayRouteContainer extends React.Component {
     window.clearTimeout(this._initTimer)
   }
 
+  showPenalty() {
+      this.setState({showPenalty: true})
+
+      setTimeout(() => this.setState({showPenalty: false}), 1400)
+  }
+
+  answer(title : string) {
+
+    // update status of the current question tapped
+    let currentQuestion = this.state.questions[this.state.currentQuestionIndex]
+
+    const updateQuestion_status = status => {
+      let updatedQuestion = {...currentQuestion, _status: {...currentQuestion._status, ...status}}
+      let questions = this.state.questions
+      questions[this.state.currentQuestionIndex] = updatedQuestion
+      this.setState({questions})
+    }
+
+    updateQuestion_status({tapped: true, answer: title, answered: false, isCorrect: null})
+
+    answerQuiz(this.state.contestId, currentQuestion.question_id, currentQuestion.question_number, title)
+    .then(({answer_result, is_completed})=> {
+
+        // update status of the current question (answer was correct or wrong)
+        updateQuestion_status({tapped: true, answer: title, answered: true, isCorrect: answer_result == "correct"})
+
+        // if answer was correct, load the next question
+        if (answer_result == "correct") {
+            // code for sequencing UI effects
+            sfx.right.play()
+            //TODO: handle is_completed
+            wait(200, () => this.setState({transitioning: true}))
+            wait(1000, () =>
+              is_completed ? waitSeq(
+                  [200, 1000, 1200]
+                , [
+                    () => this.setState({transitioning: true})
+                  , () => this.setState({completed: true})
+                  , () => this.setState({transitioning: false})
+                ]
+              )
+            : this.setState({transitioning: false, currentQuestionIndex: this.state.currentQuestionIndex + 1})
+          )
+        } else {
+            // add penalty seconds
+            sfx.wrong.play()
+            this.setState({penaltyMs: this.state.penaltyMs + 1000})
+            this.showPenalty()
+            vibrateDevice(500)
+            // resetting tapped and shake classes in Question.jsx options
+            wait(1500, () => updateQuestion_status({tapped: false, answer: title, answered: false, isCorrect: null}))
+        }
+
+    })
+  }
+
   render() {
-    // TODO: render questions 2 by 2
-    var questionElement;
+
+    const nextTwoQuestions = R.pipe(
+        R.drop(this.state.currentQuestionIndex)
+      , R.take(2)
+    )(this.state.questions)
+
+    var questionElements;
     if (this.state.currentQuestionIndex > -1) {
-      questionElement = R.pipe(
-          R.drop(this.state.currentQuestionIndex)
-        , R.take(2)
-      )(this.state.questions).map(currentQuestion => {
-      // const currentQuestion = this.state.questions[this.state.currentQuestionIndex]
+      questionElements = nextTwoQuestions.map(currentQuestion => {
         const {option_type, options, title, question_id, _status, question_number, total_questions} = currentQuestion
 
         return <Question
@@ -113,11 +174,13 @@ export default class PlayRouteContainer extends React.Component {
             questionNumber={question_number}
             totalQuestions={total_questions}
             status={_status}
-            onAnswer={(title)=> {}} />
+            onAnswer={title => this.answer(title)} />
         })
     } else {
-      questionElement = null
+      questionElements = null
     }
+
+    const progress = nextTwoQuestions.length == 0 ? 0 : calculateProgress(nextTwoQuestions[0].question_number, nextTwoQuestions[0].total_questions)
 
     return <div className={"play-route" + (this.state.showTimer ? ' show-timer' : '') + (this.state.transitioning ? ' transitioning' : '') + (this.state.showPenalty ? ' show-penalty' : '')}>
       <ContestInfo
@@ -128,182 +191,15 @@ export default class PlayRouteContainer extends React.Component {
           completed={this.state.completed}
       />
       <div className='play-route-content'>
-        {questionElement}
+        <div className='blocker' onMouseDown={ () => sfx.error.play() } /> {/* used to disable interaction during the shake, penalty animation*/}
+        <div className="level-info">Level 1</div>
+        <ProgressBar progress={progress} />
+        {this.state.showTimer ? <PlayCountdown from={playCountdownFrom} /> : ''}
+        {this.state.completed ? <Congrats /> : <div className='questions'>{questionElements}</div>}
+      </div>
+      <div className={'penalty ' + (this.state.showPenalty ? 'in' : '')}>
+        <Penalty />
       </div>
     </div>
   }
 }
-
-// old code
-var old = React.createClass({
-
-    displayName: 'play-route'
-
-    , render() {
-
-
-        const currentQuestion = (R.isEmpty(this.state.questions)) ? [] : [this.state.questions[this.state.currentQuestionIndex]]
-        const prevQuestions = R.init(this.state.questions)
-
-        //TODO: why is it a map?
-        //TODO: logic has to change, render the next few questions, keep them hidden (to cache their images)
-        // find currentQuestionIndex and show the question at the this.state.currentQuestionIndex
-        const QuestionElem = R.map((currentQuestion)=> {
-            const questionNumber = currentQuestion.question_number
-            const totalQuestions = currentQuestion.total_questions
-
-            const {option_type, options, title, question_id, _status} = currentQuestion
-
-            return (<Question
-                key={question_id}
-                optionType={option_type}
-                options={options}
-                title={title}
-                questionNumber={questionNumber}
-                totalQuestions={totalQuestions}
-                status={_status}
-                onAnswer={(title)=> {
-
-                    // update status of the current question tapped
-                    this.setState({
-                        questions: R.append(
-                            {...currentQuestion, _status: {tapped: true, answer: title}}
-                            , prevQuestions
-                        )
-                    })
-                    answerQuiz(this.state.contestId, question_id, questionNumber, title)
-                    .then(({answer_result, is_completed})=> {
-
-                        if (is_completed) {
-                            waitSeq(
-                                [200, 1000, 1200]
-                                , [
-                                    () => this.setState({transitioning: true})
-                                    , () => this.setState({completed: true})
-                                    , () => this.setState({transitioning: false})
-                                ]
-                            )
-                        } else {
-                            // update status of the current question (answer was correct or wrong)
-                            this.setState({
-                                questions: R.append(
-                                    {...currentQuestion, _status: {tapped: true, answered: true, isCorrect: answer_result == "correct", answer: title}}
-                                    , prevQuestions
-                                )
-                            })
-
-                            // if answer was correct, load the next question
-                            if (answer_result == "correct") {
-                                // code for sequencing UI effects
-                                sfx.right.play()
-                                wait(200, () => this.setState({transitioning: true}))
-                                waitPromise(1000,
-                                  getContestQuiz(this.state.contestId, questionNumber + 1)
-                                  .then((question)=> {
-                                      // this code runs immediately (in order to cache the photos for the next quiz)
-                                      // but the parent primise returns after 700ms
-                                      const newQuestion = {...question, _status: {answered: false}}
-                                      this.setState({
-                                          questions: R.append(newQuestion, this.state.questions)
-                                      })
-                                  })
-                                ).then(() => {
-                                  // show next question
-                                  this.setState({transitioning: false, currentQuestionIndex: this.state.currentQuestionIndex + 1})
-                                })
-                            } else {
-                                // add penalty seconds
-                                sfx.wrong.play()
-                                this.setState({penaltyMs: this.state.penaltyMs + 1000})
-                                this.showPenalty()
-
-                                vibrateDevice(500)
-
-                                // resetting tapped and shake classes in Question.jsx options
-                                setTimeout(() => {
-                                  this.setState({
-                                      questions: R.append(
-                                          {...currentQuestion, _status: {tapped: false, answered: false, isCorrect: null, answer: title}}
-                                          , prevQuestions
-                                      )
-                                  })
-                                }, 1500);
-                            }
-                        }
-
-                    })
-                }}
-            />)
-        })(currentQuestion)
-
-
-        return (<div className={"play-route" + (this.state.showTimer ? ' show-timer' : '') + (this.state.transitioning ? ' transitioning' : '') + (this.state.showPenalty ? ' show-penalty' : '')}>
-            <div className='blocker' onMouseDown={ () => sfx.error.play() } /> {/* used to disable interaction during the shake, penalty animation*/}
-            <div className='play-route-content'>
-              {this.state.showTimer ? <PlayCountdown from={playCountdownFrom} /> : ''}
-              {this.state.completed ? <Congrats /> : QuestionElem}
-            </div>
-            <div className={'penalty ' + (this.state.showPenalty ? 'in' : '')}>
-                <Penalty />
-            </div>
-        </div>)
-    }
-
-    , getInitialState()  {
-
-        const {contestId} = this.props.routeParams
-
-        const initialState: {
-            contestId: number
-            , questions: Array<QuestionItem>
-            , startTime: number
-            //TODO: state must be a single ContestItem
-            , contestList: Array<mixed>
-            , penaltyMs: number
-            , showPenalty: boolean
-            , showTimer: boolean
-            , transitioning: boolean
-            , currentQuestionIndex: number
-            , completed: boolean
-        } = {
-            contestId: parseInt(contestId)
-            , questions: []
-            , startTime: Date.now()
-            , contestList: []
-            , penaltyMs: 0
-            , showPenalty: false
-            , showTimer: true
-            , transitioning: false
-            , currentQuestionIndex: 0
-            , completed: false
-        }
-
-        return initialState
-    }
-
-    , _initTimer: null
-
-    , componentDidMount() {
-
-        this._initTimer = window.setTimeout(() => {
-            this.setState({showTimer: false})
-        }, (playCountdownFrom + 1) * 1000)
-
-        getContestQuiz(this.state.contestId, 0)
-        .then((question)=> {
-
-            const newQuestion = {...question, _status: {answered: false}}
-            this.setState({questions: R.append(newQuestion, this.state.questions)})
-        })
-
-    }
-    , componentWillUnmount() {
-        window.clearTimeout(this._initTimer)
-    }
-
-    , showPenalty() {
-        this.setState({showPenalty: true})
-
-        setTimeout(()=> this.setState({showPenalty: false}), 1400)
-    }
-})
