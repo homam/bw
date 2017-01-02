@@ -60,7 +60,7 @@ export default class PlayRouteContainer extends React.Component {
         showTimer: true
       , transitioning: false
       , showPenalty: false
-      , contestId: (parseInt(props.routeParams.contestId) : number)
+      , contestId: (parseInt(props.params.contestId) : number)
       , contest: (null : ?Object)
       , startTime : (new Date().valueOf() : number)
       , penaltyMs : 0
