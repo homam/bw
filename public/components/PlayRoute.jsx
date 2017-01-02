@@ -62,7 +62,7 @@ export default class PlayRouteContainer extends React.Component {
       , showPenalty: false
       , contestId: (parseInt(props.routeParams.contestId) : number)
       , contest: (null : ?Object)
-      , startTime : 0
+      , startTime : (new Date().valueOf() : number)
       , penaltyMs : 0
       , completed : false
       , questions: ([] : QuestionItem[])
@@ -180,7 +180,9 @@ export default class PlayRouteContainer extends React.Component {
       questionElements = null
     }
 
-    const progress = nextTwoQuestions.length == 0 ? 0 : calculateProgress(nextTwoQuestions[0].question_number, nextTwoQuestions[0].total_questions)
+
+
+    const progress = this.state.completed ? 100 : nextTwoQuestions.length == 0 ? 0 : calculateProgress(nextTwoQuestions[0].question_number, nextTwoQuestions[0].total_questions)
 
     return <div className={"play-route" + (this.state.showTimer ? ' show-timer' : '') + (this.state.transitioning ? ' transitioning' : '') + (this.state.showPenalty ? ' show-penalty' : '')}>
       <ContestInfo
