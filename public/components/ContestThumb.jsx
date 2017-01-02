@@ -16,19 +16,18 @@ module.exports = (props)=> {
 
             <div className="container">
                 <div className="header">
-                    <div className="row contest-info-container">
-                        <div className="small-4 columns image-container"><img src={contestImage}/></div>
-                        <div className="small-8 columns">
+                    <div className="contest-info-container">
+                        <div className="image-container" style={{
+                          backgroundImage: `url('${contestImage}')`
+                        }} />
+                        <div className="info">
                             <p className="title">{name}</p>
                             <p className="days-left">Ends in {daysLeft} days</p>
                         </div>
                     </div>
 
-                    <div className="row">
-                        <div className="small-12 columns">
-                            <Link className="button round" to={`/contest/${contestId}/play`}>Play Now</Link>
-                        </div>
-                    </div>
+                    <Link className="button round" to={`/contest/${contestId}/play`}>Play Now</Link>
+
                 </div>
 
                 <div className="row">
