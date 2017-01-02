@@ -15,16 +15,132 @@ const Congrats = require('./Congrats.jsx')
 const playCountdownFrom = 4
 const sfx = require('../modules/sfx')
 
+const loadAllQuizzes = (contestId: number) : Promise<[QuestionItem]> => {
+  const loadNextQuiz = (acc : Array<QuestionItem>, questionNumber: number) =>
+    getContestQuiz(contestId, questionNumber).then(question => {
+        const newQuestion = {...question, _status: {answered: false, isCorrect: null, answer: null}}
+        return newQuestion
+    }).then(q => {
+      if(q.total_questions > questionNumber + 1)
+        return loadNextQuiz(acc.concat([q]), questionNumber + 1)
+      else return acc
+    })
+
+  return loadNextQuiz([], 0)
+}
+
 const vibrateDevice = (ms: number)=> {
     if (!!navigator.vibrate)
         navigator.vibrate(ms)
 }
 
-module.exports = React.createClass({
+export default class PlayRouteContainer extends React.Component {
+  state: {
+      showTimer: bool
+    , transitioning: bool
+    , showPenalty: bool
+    , contestId: number
+    , contest: ?Object
+    , startTime : number
+    , penaltyMs : number
+    , completed : boolean
+    , questions: QuestionItem[]
+    , currentQuestionIndex: number
+  }
+
+  _initTimer: ?number
+
+  constructor(props : Object) {
+    super(props);
+    this.state = {
+        showTimer: true
+      , transitioning: false
+      , showPenalty: false
+      , contestId: (parseInt(props.routeParams.contestId) : number)
+      , contest: (null : ?Object)
+      , startTime : 0
+      , penaltyMs : 0
+      , completed : false
+      , questions: ([] : QuestionItem[])
+      , currentQuestionIndex: (-1 : number)
+    };
+
+    this._initTimer = null
+
+    getContestList().then(contestList => {
+      this.setState({contest: R.find(contestItem =>
+        contestItem.contest_id == this.state.contestId, contestList)})
+    })
+
+    loadAllQuizzes(this.state.contestId).then((questions) => {
+      this.setState({questions})
+      this.nextQuestion()
+    })
+
+  }
+
+  nextQuestion() {
+    const currentQuestionIndex = this.state.currentQuestionIndex + 1
+    this.setState({currentQuestionIndex})
+  }
+
+  componentWillMount() {
+    this._initTimer = window.setTimeout(() => {
+        this.setState({showTimer: false})
+    }, (playCountdownFrom + 1) * 1000)
+  }
+
+  componentWillUnmount() {
+    window.clearTimeout(this._initTimer)
+  }
+
+  render() {
+    // TODO: render questions 2 by 2
+    var questionElement;
+    if (this.state.currentQuestionIndex > -1) {
+      questionElement = R.pipe(
+          R.drop(this.state.currentQuestionIndex)
+        , R.take(2)
+      )(this.state.questions).map(currentQuestion => {
+      // const currentQuestion = this.state.questions[this.state.currentQuestionIndex]
+        const {option_type, options, title, question_id, _status, question_number, total_questions} = currentQuestion
+
+        return <Question
+            key={question_id}
+            optionType={option_type}
+            options={options}
+            title={title}
+            questionNumber={question_number}
+            totalQuestions={total_questions}
+            status={_status}
+            onAnswer={(title)=> {}} />
+        })
+    } else {
+      questionElement = null
+    }
+
+    return <div className={"play-route" + (this.state.showTimer ? ' show-timer' : '') + (this.state.transitioning ? ' transitioning' : '') + (this.state.showPenalty ? ' show-penalty' : '')}>
+      <ContestInfo
+          key={this.state.contestId}
+          contestItem={this.state.contest}
+          startTime={this.state.startTime}
+          penaltyMs={this.state.penaltyMs}
+          completed={this.state.completed}
+      />
+      <div className='play-route-content'>
+        {questionElement}
+      </div>
+    </div>
+  }
+}
+
+// old code
+var old = React.createClass({
 
     displayName: 'play-route'
 
     , render() {
+
 
         const currentQuestion = (R.isEmpty(this.state.questions)) ? [] : [this.state.questions[this.state.currentQuestionIndex]]
         const prevQuestions = R.init(this.state.questions)
@@ -120,22 +236,9 @@ module.exports = React.createClass({
             />)
         })(currentQuestion)
 
-        const ContestInfoElem = R.compose(
-            R.map((contestItem)=> {
-                return (<ContestInfo
-                    key={contestItem.contest_id}
-                    contestItem={contestItem}
-                    startTime={this.state.startTime}
-                    penaltyMs={this.state.penaltyMs}
-                    completed={this.state.completed}
-                />)
-            })
-            , R.filter((contestItem)=> contestItem.contest_id == this.state.contestId)
-        )(this.state.contestList)
 
         return (<div className={"play-route" + (this.state.showTimer ? ' show-timer' : '') + (this.state.transitioning ? ' transitioning' : '') + (this.state.showPenalty ? ' show-penalty' : '')}>
             <div className='blocker' onMouseDown={ () => sfx.error.play() } /> {/* used to disable interaction during the shake, penalty animation*/}
-            {ContestInfoElem}
             <div className='play-route-content'>
               {this.state.showTimer ? <PlayCountdown from={playCountdownFrom} /> : ''}
               {this.state.completed ? <Congrats /> : QuestionElem}
@@ -155,7 +258,7 @@ module.exports = React.createClass({
             , questions: Array<QuestionItem>
             , startTime: number
             //TODO: state must be a single ContestItem
-            , contestList: Array<ContestItem>
+            , contestList: Array<mixed>
             , penaltyMs: number
             , showPenalty: boolean
             , showTimer: boolean
@@ -185,11 +288,6 @@ module.exports = React.createClass({
         this._initTimer = window.setTimeout(() => {
             this.setState({showTimer: false})
         }, (playCountdownFrom + 1) * 1000)
-
-        getContestList()
-        .then((contestList)=> {
-            this.setState({contestList: contestList})
-        })
 
         getContestQuiz(this.state.contestId, 0)
         .then((question)=> {

@@ -12,7 +12,7 @@ const es = require('event-stream');
 const buffer = require('vinyl-buffer');
 const uglify = require('gulp-uglify');
 
-process.env.NODE_ENV = 'production'
+process.env.NODE_ENV = 'development' // 'production'
 
 gulp.task('build', ['build:scripts', 'build:styles']);
 
@@ -34,7 +34,7 @@ gulp.task('build:scripts', (done) => {
         .bundle()
         .pipe(source('bundle.js'))
         .pipe(buffer())
-        .pipe(uglify())
+        // .pipe(uglify()) //TODO: production only
         .pipe(gulp.dest('./public'))
     const t2 = browserify('./public/sw.js')
         .transform(babelify, { presets: ['es2015', 'stage-2'] })

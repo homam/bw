@@ -36,8 +36,8 @@ export type QuestionItem = {
     , contest_id: number
     , _status: {
         answered: boolean
-        , isCorrect: boolean
-        , answer: string
+      , isCorrect: ?boolean
+      , answer: ?string
     } | null
 }
 

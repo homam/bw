@@ -8,7 +8,7 @@ import type {QuizPayload, AnswerPayload, ContestItem, QuestionItem, OptionItem, 
 const pMemoize = (f)=> {
     const cache = {}
 
-    return (...args)=> {
+    return (...args : Array<any>) => {
         const key = JSON.stringify(args)
         const valueInCache = R.prop(key, cache)
 

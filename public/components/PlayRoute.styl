@@ -18,6 +18,9 @@
 
 .play-route
 
+    margin-top: 10px
+    display: relative
+
     .penalty
         position fixed
         bottom 0
@@ -43,14 +46,19 @@
             display: block
 
     .play-route-content
-        min-height: 428px;
         max-width: 360px;
         margin: 8px auto 0 auto;
         background: url(/img/bg-curtain.png) #000;
         border-radius: 5px;
         background-repeat: no-repeat;
-        padding-bottom: 22px;
-        position: relative;
+        overflow-y: auto;
+
+        position: absolute;
+        top: 100px;
+        bottom: 10px;
+        left: 0;
+        right: 0;
+        transform: translate3d(0, 0, 0)
 
     .question-component,
     .congrats-component

@@ -2,11 +2,43 @@
     height: 87px
     max-width 360px
     margin auto
+    overflow: hidden;
+    background url(/img/bg-blue.png)
+    background-position center
+    border-radius 5px
+    display: flex
+    transform: translate3d(0, 0, 0)
+
+    > .contest-image
+      width: 120px;
+      height: 87px;
+      min-width: 120px
+      background-position: center;
+      background-size: contain;
+      background-repeat: no-repeat;
+
+    > .contest-info
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      margin-left: 8px;
+
+      > .title
+        font-size: 37px;
+        overflow: hidden;
+        word-break: break-all;
+        word-wrap: break-word;
+        white-space: nowrap;
+        margin-bottom: 0;
+
+      > .timer
+        height: 33px;
+
 
     .container
-        background url(/img/bg-blue.png)
-        background-position center
-        border-radius 5px
+        display: flex
+        flex: 1
+
 
         .title
           font-size: 32px;
@@ -17,14 +49,3 @@
 
         .timer
           margin-top: -3px
-
-        .image-container
-            display flex
-            height 100%
-
-            .contest-image
-                width: 86px
-                height: 86px;
-                background-size: contain;
-                background-repeat: no-repeat;
-                background-position: center;

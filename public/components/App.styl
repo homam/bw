@@ -11,26 +11,88 @@
 @import 'Menu'
 @import 'PlayCountdown'
 
+abs-container()
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  transform: translate3d(0, 0, 0)
+
+menu-width = 200px
+menu-transition()
+  transition: transform 0.3s;
+
 body
   font-family: 'Roboto'
-
-div
-  -webkit-overflow-scrolling: touch;
+  abs-container()
+  overflow: hidden;
+  margin: 0
+  padding: 0
 
 .off-canvas-wrap, .off-canvas-wrap > .inner-wrap
     min-height 100vh
 
 #app-container
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    overflow-x: hidden;
-    overflow-y: auto;
+  // position: relative;
+  abs-container()
 
-    .container
-        -webkit-overflow-scrolling: touch;
+  > .container
+    // position: relative;
+    abs-container()
+
+    > header
+      position: fixed
+      top: 0
+      left: 0
+      right 0
+      height: 85px
+      z-index: 100
+      menu-transition()
+
+    > .body
+      abs-container()
+      top: 75px
+      position: absolute;
+      overflow-x: hidden;
+      overflow-y: auto
+      z-index: 20
+      menu-transition()
+
+      -webkit-overflow-scrolling: touch;
+
+    > .menu
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: menu-width;
+        bottom: 0;
+        z-index: 120;
+        background-color: gray;
+        menu-transition()
+        transform: translate3d(menu-width, 0, 0);
+
+    > .menu-blocker
+      display: none
+      position: fixed
+      top: 0
+      right: menu-width
+      left: 0
+      bottom: 0
+
+    &.menu-open
+      > .menu
+        transform: translate3d(0, 0, 0);
+
+      > .body, header
+        transform: translate3d(-1 * menu-width, 0, 0);
+
+      > .menu-blocker
+        display: block;
+        z-index: 220;
+
+      > .body
+        overflow-y: hidden;
 
     .home-route
           max-width: 558px

@@ -2,10 +2,9 @@
 <html>
 <head>
     <title>BigWin</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=0, minimum-scale=1, maximum-scale=1, minimal-ui" />
+    <meta name="viewport" content="minimal-ui, width=device-width, initial-scale=1, user-scalable=0, minimum-scale=1, maximum-scale=1, minimal-ui" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="theme-color" content="#ffaa00" />
-    <link href="//cdnjs.cloudflare.com/ajax/libs/foundation/5.4.6/css/normalize.min.css" rel="stylesheet" type="text/css" />
-    <link href="//cdnjs.cloudflare.com/ajax/libs/foundation/5.4.6/css/foundation.min.css" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" type="text/css" href="/components/App.css"/>
     <link href="//fonts.googleapis.com/css?family=Roboto" rel="stylesheet" />
 </head>
@@ -13,26 +12,17 @@
 
     <div id="app-container"></div>
     <script>
-      if ('serviceWorker' in navigator && window.location.protocol == 'https:') {
-        navigator.serviceWorker.register('sw-c.js', {scope: './'}).then(function(registration) {
-          console.log('Service worker registered', registration)
-        }).catch(function(error) {
-          console.log('Service worker failed', error)
-        });
-      }
+      // if ('serviceWorker' in navigator && window.location.protocol == 'https:') {
+      //   navigator.serviceWorker.register('sw-c.js', {scope: './'}).then(function(registration) {
+      //     console.log('Service worker registered', registration)
+      //   }).catch(function(error) {
+      //     console.log('Service worker failed', error)
+      //   });
+      // }
     </script>
 
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/foundation/5.4.6/js/foundation.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/howler/2.0.2/howler.core.min.js"></script>
     <script src="/bundle.js"></script>
-    <script>
-      $(document).foundation();
-      $(document).on('close.fndtn.offcanvas', '[data-offcanvas]', function (e) {
-        // related to Header.jsx
-        $('.off-canvas-wrap').css({"overflow-y": 'auto'})
-      });
-    </script>
-
 </body>
 </html>
