@@ -75,7 +75,7 @@ class App extends React.Component {
         return (
             <div className={`container${this.state.isMenuOpen ? ' menu-open' : ''}`}>
                 <div className="menu">
-                    <Menu />
+                    <Menu toggleMenu={this.toggleMenu.bind(this)} />
                 </div>
                 <div className="menu-blocker" onTouchStart={() => this.toggleMenu()} />
                 <header>
