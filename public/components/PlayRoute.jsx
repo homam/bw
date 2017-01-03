@@ -50,6 +50,7 @@ export default class PlayRouteContainer extends React.Component {
     , completed : boolean
     , questions: QuestionItem[]
     , currentQuestionIndex: number
+    , elapsed: ?number
   }
 
   _initTimer: ?number
@@ -67,6 +68,7 @@ export default class PlayRouteContainer extends React.Component {
       , completed : false
       , questions: ([] : QuestionItem[])
       , currentQuestionIndex: (-1 : number)
+      , elapsed: (null : ?Object)
     };
 
     this._initTimer = null
@@ -119,7 +121,10 @@ export default class PlayRouteContainer extends React.Component {
     updateQuestion_status({tapped: true, answer: title, answered: false, isCorrect: null})
 
     answerQuiz(this.state.contestId, currentQuestion.question_id, currentQuestion.question_number, title)
-    .then(({answer_result, is_completed})=> {
+    .then(({answer_result, is_completed, fastest_player, result_message})=> {
+
+        // result_message represents time it took the user to finish the quiz as string
+        this.setState({elapsed: parseInt(result_message)})
 
         // update status of the current question (answer was correct or wrong)
         updateQuestion_status({tapped: true, answer: title, answered: true, isCorrect: answer_result == "correct"})
@@ -191,6 +196,7 @@ export default class PlayRouteContainer extends React.Component {
           startTime={this.state.startTime}
           penaltyMs={this.state.penaltyMs}
           completed={this.state.completed}
+          elapsed={this.state.elapsed}
       />
       <div className='play-route-content'>
         <div className='blocker' onMouseDown={ () => sfx.error.play() } /> {/* used to disable interaction during the shake, penalty animation*/}

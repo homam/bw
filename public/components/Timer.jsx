@@ -14,19 +14,24 @@ module.exports = ReactTimeout(React.createClass({
     elapsed: 0
 
     , render() {
+        // set the time returned by the api at the end of the contest
+        if (!!this.props.elapsed)
+            this.elapsed = this.props.elapsed
+
         return <div className="timer-component" ref="timer">{formatTime(this.elapsed)}</div>
     }
 
     , componentDidMount() {
-        this.props.setTimeout(this.tick, 50)
+        if (!this.props.pause && !this.props.elapsed)
+            this.props.setTimeout(this.tick, 50)
     }
 
     , tick() {
 
-        this.elapsed = new Date() - this.props.startTime + this.props.penaltyMs
-        this.refs.timer.innerHTML = formatTime(this.elapsed)
+        if (!this.props.pause && !this.props.elapsed)
+            this.elapsed = new Date() - this.props.startTime + this.props.penaltyMs
+            this.refs.timer.innerHTML = formatTime(this.elapsed)
 
-        if (!this.props.pause)
             this.props.setTimeout(this.tick, 50)
     }
 
