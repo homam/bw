@@ -4,6 +4,8 @@ const React = require('react')
 const R = require('ramda')
 const {getContestList} = require('../modules/apis')
 import type {ContestItem} from "../../types.js";
+const {createHashHistory} = require('history')
+const history = createHashHistory()
 
 const ContestThumb = require('./ContestThumb.jsx')
 
@@ -34,7 +36,12 @@ module.exports = React.createClass({
                 name={name}
                 bestTime={best_time}
                 contestImage={contest_image}
-                timeRemaining={time_remaining} />
+                timeRemaining={time_remaining}
+                locked={false}
+                onClick={(contestId)=> {
+                    // @TODO: implement the pin flow
+                    history.push(`/contest/${contestId}/play`)
+                }} />
         )(this.state.contestList)
 
         return (

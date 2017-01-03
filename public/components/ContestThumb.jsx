@@ -4,8 +4,9 @@ const {Link} = require('react-router')
 
 const Button = require('./Button.jsx')
 
-module.exports = (props)=> {
-    const {contestId, name, bestTime, contestImage, timeRemaining, locked} = props
+module.exports = (props:{contestId: number, name: string, bestTime: ?number, contestImage: string, timeRemaining: number, locked: boolean})=> {
+
+    const {contestId, name, bestTime, contestImage, timeRemaining, locked, onClick} = props
     const time = moment(bestTime || 0)
 
     const daysLeft = moment(timeRemaining * 1000).diff((new Date()), 'days')
@@ -27,7 +28,7 @@ module.exports = (props)=> {
                         </div>
                     </div>
 
-                    <Link className="button round" to={`/contest/${contestId}/play`}>Play Now</Link>
+                    <a href="javascript:void(0)" onClick={() => onClick(contestId)} className="button round">Play Now</a>
 
                 </div>
 
