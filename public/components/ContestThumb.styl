@@ -1,11 +1,15 @@
 .contest-thumb
 
     .image-container
-      width: 100px;
-      height: 100px;
-      background-size: contain;
-      background-repeat: no-repeat;
-      background-position: center;
+      width 100px
+      height 100px
+      background-size contain
+      background-repeat no-repeat
+      background-position center
+      text-align center
+
+      img
+        margin-top 10px
 
     .container
         position relative
@@ -26,7 +30,7 @@
                 font-size 23px
                 font-weight bold
 
-            .days-left
+            .info
                 text-transform uppercase
                 color #8FD1EB
                 font-size 12px
@@ -78,3 +82,18 @@
                 color #7E7E7E
                 white-space: nowrap
                 overflow: hidden
+
+        &.locked
+
+            .header
+                background black
+
+                .title
+                    color #fff
+
+                .info
+                    color #E87B3A
+                    
+                .button
+                    background -webkit-linear-gradient(top, #F9DA74 0%, #EDA755 44%, #E87B3A 100%)
+                    color #000

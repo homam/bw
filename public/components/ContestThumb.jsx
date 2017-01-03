@@ -5,24 +5,25 @@ const {Link} = require('react-router')
 const Button = require('./Button.jsx')
 
 module.exports = (props)=> {
-    const {contestId, name, bestTime, contestImage, timeRemaining} = props
+    const {contestId, name, bestTime, contestImage, timeRemaining, locked} = props
     const time = moment(bestTime || 0)
-
 
     const daysLeft = moment(timeRemaining * 1000).diff((new Date()), 'days')
 
     return (
         <div className="contest-thumb">
 
-            <div className="container">
+            <div className={"container " + ((locked) ? "locked" : "")}>
                 <div className="header">
                     <div className="contest-info-container">
                         <div className="image-container" style={{
                           backgroundImage: `url('${contestImage}')`
-                        }} />
+                        }}>
+                            {locked && <img src="/img/icon-locked.png" />}
+                        </div>
                         <div className="info">
                             <p className="title">{name}</p>
-                            <p className="days-left">Ends in {daysLeft} days</p>
+                            <p className="info">Ends in {daysLeft} days</p>
                         </div>
                     </div>
 
