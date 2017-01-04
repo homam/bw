@@ -63,7 +63,7 @@ gulp.task('watch', () => {
 gulp.task('develop', () => {
     nodemon({
         script: './server.js',
-        execMap: 'babel-node',
+        execMap: {'js': 'babel-node'},
         ignore: [
           'public/',
           'build/'
