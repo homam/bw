@@ -29,18 +29,13 @@ module.exports = React.createClass({
 
     , render() {
 
-        const ContestThumbList = R.map(({contest_id, name, best_time, contest_image, time_remaining})=>
+        const ContestThumbList = R.map((contestItem)=>
             <ContestThumb
-                key={contest_id}
-                contestId={contest_id}
-                name={name}
-                bestTime={best_time}
-                contestImage={contest_image}
-                timeRemaining={time_remaining}
-                locked={false}
-                onClick={(contestId)=> {
+                key={contestItem.contest_id}
+                contestItem={{...contestItem, unlocked: 1}}
+                onClick={({contest_id})=> {
                     // @TODO: implement the pin flow
-                    history.push(`/contest/${contestId}/play`)
+                    history.push(`/contest/${contest_id}/play`)
                 }} />
         )(this.state.contestList)
 

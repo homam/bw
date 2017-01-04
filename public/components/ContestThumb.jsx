@@ -1,26 +1,29 @@
+// @flow
+
 const React = require('react')
 const moment = require('moment')
 const {Link} = require('react-router')
-
+import type {ContestItem} from "../../types.js";
 const Button = require('./Button.jsx')
 
-module.exports = (props:{contestId: number, name: string, bestTime: ?number, contestImage: string, timeRemaining: number, locked: boolean})=> {
+module.exports = (props:{contestItem: ContestItem, onClick: (contestItem: contestItem) => any})=> {
 
-    const {contestId, name, bestTime, contestImage, timeRemaining, locked, onClick} = props
-    const time = moment(bestTime || 0)
+    const {contestItem, onClick} = props
+    const {contest_id, name, best_time, contest_image, time_remaining, unlocked} = contestItem
+    const time = moment(best_time || 0)
 
-    const daysLeft = moment(timeRemaining * 1000).diff((new Date()), 'days')
+    const daysLeft = moment(time_remaining * 1000).diff((new Date()), 'days')
 
     return (
         <div className="contest-thumb">
 
-            <div className={"container " + ((locked) ? "locked" : "")}>
+            <div className={"container " + ((unlocked) ? "" : "locked")}>
                 <div className="header">
                     <div className="contest-info-container">
                         <div className="image-container" style={{
-                          backgroundImage: `url('${contestImage}')`
+                          backgroundImage: `url('${contest_image}')`
                         }}>
-                            {locked && <img src="/img/icon-locked.png" />}
+                            {!unlocked && <img src="/img/icon-locked.png" />}
                         </div>
                         <div className="info">
                             <p className="title">{name}</p>
@@ -28,7 +31,7 @@ module.exports = (props:{contestId: number, name: string, bestTime: ?number, con
                         </div>
                     </div>
 
-                    <a href="javascript:void(0)" onClick={() => onClick(contestId)} className="button round">Play Now</a>
+                    <a href="javascript:void(0)" onClick={() => onClick(contestItem)} className="button round">Play Now</a>
 
                 </div>
 
