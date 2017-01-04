@@ -1,5 +1,7 @@
 // @flow
 
+export type GrantType = 'client_credentials' | 'password' | 'email_access_token'
+
 export type QuizPayload = {
     contest_id: number
     , options_limit: number
