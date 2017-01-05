@@ -6,7 +6,6 @@ const port = process.env.PORT || config.port
 const httpProxy = require('http-proxy')
 const cookieParser = require('cookie-parser')
 const apiProxy = httpProxy.createProxyServer({changeOrigin: true});
-const routes = require('./routes')
 const {generateAccessToken} = require('./apis')
 
 const {clientId, clientSecret, apiDomain} = config
