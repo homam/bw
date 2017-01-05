@@ -27,5 +27,10 @@ const pMemoize = (f)=> {
 }
 
 
+const preloadImages = (images: Array<string>)=>
+    R.map((x)=> (new Image()).src = x)(images)
+
+
 module.exports.pEachSequence = R.curry(pEachSequence)
 module.exports.pMemoize = pMemoize
+module.exports.preloadImages = preloadImages

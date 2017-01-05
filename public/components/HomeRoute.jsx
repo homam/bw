@@ -3,7 +3,8 @@
 const React = require('react')
 const R = require('ramda')
 const {getContestList} = require('../modules/apis')
-import type {ContestItem} from "../../types.js";
+import type {ContestItem} from "../../types.js"
+const {preloadImages} = require('../modules/utils')
 const {createHashHistory} = require('history')
 const history = createHashHistory()
 
@@ -61,6 +62,10 @@ module.exports = React.createClass({
         .then((contestList)=> {
             this.setState({contestList: contestList})
         })
+    },
+
+    componentDidUpdate() {
+        preloadImages(['/img/bg-curtain.png'])
     }
 
 })
