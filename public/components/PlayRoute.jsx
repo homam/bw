@@ -112,11 +112,29 @@ export default class PlayRouteContainer extends React.Component {
     // update status of the current question tapped
     let currentQuestion = this.state.questions[this.state.currentQuestionIndex]
 
+    const selectedOption = R.find((x)=> x.title == title)(currentQuestion.options)
+
+    // ignore the tap on previously selected wrong option
+    if (selectedOption._status && selectedOption._status.answered)
+        return false
+
     const updateQuestion_status = status => {
-      let updatedQuestion = {...currentQuestion, _status: {...currentQuestion._status, ...status}}
-      let questions = this.state.questions
-      questions[this.state.currentQuestionIndex] = updatedQuestion
-      this.setState({questions})
+
+        const updatedQuestion = {
+            ...currentQuestion,
+            _status: {...currentQuestion._status, ...status},
+            options: R.map((option)=> {
+                if (option.title == status.answer && status.answered) {
+                    return {...option, _status: status}
+                } else {
+                    return option
+                }
+            })(currentQuestion.options)
+        }
+
+        let questions = this.state.questions
+        questions[this.state.currentQuestionIndex] = updatedQuestion
+        this.setState({questions})
     }
 
     updateQuestion_status({tapped: true, answer: title, answered: false, isCorrect: null})
@@ -161,7 +179,7 @@ export default class PlayRouteContainer extends React.Component {
             this.showPenalty()
             vibrateDevice(500)
             // resetting tapped and shake classes in Question.jsx options
-            wait(1500, () => updateQuestion_status({tapped: false, answer: title, answered: false, isCorrect: null}))
+            // wait(1500, () => updateQuestion_status({tapped: false, answer: title, answered: false, isCorrect: null}))
         }
 
     })

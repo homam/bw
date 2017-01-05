@@ -13,14 +13,17 @@ const {imagePath} = require('../config')
 module.exports = (props)=> {
 
     const {optionType, options, title, questionNumber, totalQuestions, status} = props
-    const {answered, isCorrect, answer, tapped} = status
 
     // const progress = calculateProgress(questionNumber + 1, totalQuestions)
 
-    const Options = R.map(({title})=> {
+    const Options = R.map(({title, _status = {}})=> {
         const src = `${imagePath}${title}`
 
-        const shakeClass = (answer == title && answered && !isCorrect) ? "shake" : ""
+        // shake class depends on the status of the question object, since it contains the title of the lastest answer
+        const shakeClass = (status.answer == title && status.answered && !status.isCorrect) ? "shake" : ""
+
+        // for highligning correct or wrong answer, use the status of the options object, since it contains status per option
+        const {answered, isCorrect, answer, tapped} = _status
 
         return (<div className={
           `option-container ${shakeClass} ${answer == title && answered && isCorrect ? 'right' : answer == title && answered ? 'wrong' : ''} ${answer == title && tapped ? 'tapped' : ''}`
