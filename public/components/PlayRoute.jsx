@@ -15,6 +15,7 @@ const Congrats = require('./Congrats.jsx')
 const ProgressBar = require('./ProgressBar.jsx')
 const playCountdownFrom = 4
 const sfx = require('../modules/sfx')
+const {preloadImages} = require('../modules/utils')
 
 const calculateProgress = (currentQuestion: number, totalQuestions: number): number =>
     currentQuestion * 100 / totalQuestions
@@ -131,6 +132,12 @@ export default class PlayRouteContainer extends React.Component {
 
         // if answer was correct, load the next question
         if (answer_result == "correct") {
+
+            // preload image
+            if (currentQuestion.question_number + 2 == currentQuestion.total_questions) {
+                preloadImages(['/img/congrats.png'])
+            }
+
             // code for sequencing UI effects
             sfx.right.play()
             //TODO: handle is_completed
@@ -146,6 +153,7 @@ export default class PlayRouteContainer extends React.Component {
               )
             : this.setState({transitioning: false, currentQuestionIndex: this.state.currentQuestionIndex + 1})
           )
+
         } else {
             // add penalty seconds
             sfx.wrong.play()
