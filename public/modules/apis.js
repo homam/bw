@@ -2,8 +2,8 @@
 
 const axios = require('axios')
 const R = require('ramda')
-const {contestApi, quizApi, answerApi, imagePath} = require('../config')
-import type {QuizPayload, AnswerPayload, ContestItem, QuestionItem, OptionItem, Answer} from "../../types.js"
+const {contestApi, quizApi, answerApi, imagePath, registrationApi} = require('../config')
+import type {QuizPayload, AnswerPayload, ContestItem, QuestionItem, OptionItem, Answer, RegistrationPayload} from "../../types.js"
 const {pMemoize} = require('./utils')
 const cookie = require('react-cookie')
 
@@ -11,7 +11,7 @@ const authKey = cookie.load('access_token')
 
 const calculateHash = (payloadString: string): string => {
     const algString = "alg=HS256,typ=JWT"
-    const clientSecreteString = "bByTRDA8CL7BYr82BCK2s4yJPhvR4cy5"
+    const clientSecreteString = "DUhMrFggWqa47mJ54m2YLLVqRJ23KRJZ"
 
     //Create base 64 hash of each string and combine it to create a hash
     const alg = new Buffer(algString).toString('base64')
@@ -36,15 +36,19 @@ const constructContestItem = (item: Object): ContestItem => {
 }
 
 
-const constructQuizPayloadString = (contestID: number, i: number): string =>
-    `contest_id=${contestID},options_limit=12,question_number=${i},`
+const constructPayloadString = (payload: Object): string=>
+    R.reduce(
+        (cur, [k, v])=> {
+            if (!cur)
+                return `${k}=${v}`
+            else
+                return `${cur},${k}=${v}`
+        }
+        , ''
+    )(R.toPairs(payload)) + ','
 
 
-const constructAnswerPayloadString = (contestID: number, quesId: number, currentQ: number, answer: string): string=>
-    `contest_id=${contestID},question_id=${quesId},question_number=${currentQ},answer=${answer},`
-
-
-const apiRequest = (url: string, authKey: string, hash: string, payload: QuizPayload | AnswerPayload): Promise<Object> =>
+const apiRequest = (url: string, authKey: string, hash: string, payload: QuizPayload | AnswerPayload | RegistrationPayload): Promise<Object> =>
     axios({
         method: 'post'
         , url: url
@@ -82,13 +86,13 @@ const getContestList = (url: string, authKey: string): Promise<Array<ContestItem
 
 const getContestQuiz = (url: string, authKey: string, contestId: number, questionNumber: number): Promise<QuestionItem> => {
 
-    const hash = R.compose(calculateHash, constructQuizPayloadString)(contestId, questionNumber)
-
     const payload = {
         contest_id: contestId
         , options_limit: 12
         , question_number: questionNumber
     }
+
+    const hash = R.compose(calculateHash, constructPayloadString)(payload)
 
     return new Promise((resolve, reject)=>
         apiRequest(url, authKey, hash, payload)
@@ -117,14 +121,14 @@ const getContestQuiz = (url: string, authKey: string, contestId: number, questio
 
 const answerQuiz = (url: string, authKey: string, contestId: number, questionId: number, questionNumber: number, answer: string): Promise<Answer> => {
 
-    const hash = R.compose(calculateHash, constructAnswerPayloadString)(contestId, questionId, questionNumber, answer)
-
     const payload = {
         contest_id: contestId
         , question_id: questionId
         , question_number: questionNumber
         , answer: answer
     }
+
+    const hash = R.compose(calculateHash, constructPayloadString)(payload)
 
     return new Promise((resolve, reject)=>
         apiRequest(url, authKey, hash, payload)
@@ -136,6 +140,27 @@ const answerQuiz = (url: string, authKey: string, contestId: number, questionId:
 }
 
 
+const registration = (url: string, authKey: string, msisdn: string, contestId: number, publisherId: string)=> {
+
+    const payload = {
+        msisdn: msisdn
+        , contest_id: contestId
+        , publisherid: publisherId
+    }
+
+    const hash = R.compose(calculateHash, constructPayloadString)(payload)
+    
+    return new Promise((resolve, reject)=> {
+        apiRequest(url, authKey, hash, payload)
+        .then(({data})=>
+            resolve(R.prop('data')(data))
+        )
+        .catch((err)=> reject(err))
+    })
+}
+
+
 module.exports.getContestList = pMemoize(()=> getContestList(contestApi, authKey))
 module.exports.getContestQuiz = R.curry(getContestQuiz)(quizApi, authKey)
 module.exports.answerQuiz = R.curry(answerQuiz)(answerApi, authKey)
+module.exports.registration = R.curry(registration)(registrationApi, authKey)

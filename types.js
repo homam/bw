@@ -15,6 +15,12 @@ export type AnswerPayload = {
     , answer: string
 }
 
+export type RegistrationPayload = {
+    msisdn: string
+    , contest_id: number
+    , publisherid: string
+}
+
 export type ContestItem = {
     contest_id: number
     , name: string
