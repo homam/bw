@@ -31,6 +31,7 @@ const authentication = (req, res, next)=> {
     .then(({data})=> {
         const {access_token, token_type, expires_in} = data.data
         res.cookie('access_token', access_token, {expires: new Date(expires_in * 1000)})
+        res.cookie('authentication_level', 'anonymous')
         next()
     })
     .catch(()=> next())
