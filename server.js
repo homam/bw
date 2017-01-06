@@ -43,7 +43,7 @@ app.get('/', authentication, (req, res, next)=> {
 app.use(express.static('./public'))
 
 app.all('/api/*', (req, res) => {
-  apiProxy.web(req, res, {target: 'https://prizefrenzy.com/'})
+  apiProxy.web(req, res, {target: 'http://stage.prizefrenzy.com/'})
 })
 
 app.listen(port, ()=> console.log(`listening to port: ${port}`))

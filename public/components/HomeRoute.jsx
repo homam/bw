@@ -7,7 +7,7 @@ import type {ContestItem} from "../../types.js"
 const {preloadImages} = require('../modules/utils')
 const {createHashHistory} = require('history')
 const history = createHashHistory()
-
+const {imagePath} = require('../config')
 const ContestThumb = require('./ContestThumb.jsx')
 
 
@@ -18,7 +18,7 @@ const constructContestItem = (item: Object): ContestItem => {
         contest_id: contest_id
         , name
         , best_time: best_time
-        , contest_image: `https://prizefrenzy.com/api/games/${contest_image}`
+        , contest_image: `${imagePath}${contest_image}`
         , time_remaining: time_remaining
     }
 }
@@ -33,7 +33,7 @@ module.exports = React.createClass({
         const ContestThumbList = R.map((contestItem)=>
             <ContestThumb
                 key={contestItem.contest_id}
-                contestItem={{...contestItem, unlocked: 1}}
+                contestItem={contestItem}
                 onClick={({contest_id})=> {
                     // @TODO: implement the pin flow
                     history.push(`/contest/${contest_id}/play`)

@@ -21,6 +21,7 @@ export type ContestItem = {
     , best_time: number | null
     , contest_image: string
     , time_remaining: number
+    , unlocked: number
 }
 
 export type OptionItem = {

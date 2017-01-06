@@ -3,5 +3,5 @@
     "contestApi": "/api/games/contest/list",
     "quizApi": "/api/games/contest/quiz",
     "answerApi": "/api/games/contest/answer",
-    "imagePath": "https://prizefrenzy.com/api/games/"
+    "imagePath": "http://stage.prizefrenzy.com/api/games/"
 }

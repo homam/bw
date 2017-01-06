@@ -2,9 +2,12 @@
 
 const axios = require('axios')
 const R = require('ramda')
-const {authKey, contestApi, quizApi, answerApi, imagePath} = require('../config')
+const {contestApi, quizApi, answerApi, imagePath} = require('../config')
 import type {QuizPayload, AnswerPayload, ContestItem, QuestionItem, OptionItem, Answer} from "../../types.js"
 const {pMemoize} = require('./utils')
+const cookie = require('react-cookie')
+
+const authKey = cookie.load('access_token')
 
 const calculateHash = (payloadString: string): string => {
     const algString = "alg=HS256,typ=JWT"
@@ -20,7 +23,7 @@ const calculateHash = (payloadString: string): string => {
 
 
 const constructContestItem = (item: Object): ContestItem => {
-    const {contest_id, name, best_time, contest_image, time_remaining} = item
+    const {contest_id, name, best_time, contest_image, time_remaining, unlocked} = item
 
     return {
         contest_id: contest_id
@@ -28,6 +31,7 @@ const constructContestItem = (item: Object): ContestItem => {
         , best_time: best_time
         , contest_image: `${imagePath}${contest_image}`
         , time_remaining: time_remaining
+        , unlocked: unlocked
     }
 }
 
