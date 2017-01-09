@@ -12,6 +12,7 @@ const {imagePath} = require('../config')
 const ContestThumb = require('./ContestThumb.jsx')
 const NumberEntry = require('./NumberEntry.jsx')
 const PinEntry = require('./PinEntry.jsx')
+const RegisterCongrats = require('./RegisterCongrats.jsx')
 
 
 const constructContestItem = (item: Object): ContestItem => {
@@ -77,10 +78,19 @@ module.exports = React.createClass({
                                 , authenticationLevel: 'user'
                             })
 
+                            this.setState({authStage: 'congrats'})
+
                         })
                         .catch((e)=> console.log(e))
                     }
                 } />}
+
+                {this.state.authStage == 'congrats' && <RegisterCongrats
+                    contestItem={R.find((x)=> x.contest_id == this.state.selectedContestId)(this.state.contestList)}
+                    onClick={()=> {
+                        return history.push(`/contest/${this.state.selectedContestId}/play`)
+                    }}
+                />}
 
                 {ContestThumbList}
             </div>
