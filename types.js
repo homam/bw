@@ -21,6 +21,12 @@ export type RegistrationPayload = {
     , publisherid: string
 }
 
+export type PinPayload = {
+    msisdn: string
+    , contest_id: number
+    , pincode: number
+}
+
 export type ContestItem = {
     contest_id: number
     , name: string
