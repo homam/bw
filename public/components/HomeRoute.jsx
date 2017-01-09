@@ -83,10 +83,8 @@ module.exports = React.createClass({
                         pinVerification(this.state.msisdn, this.state.selectedContestId, parseInt(pincode))
                         .then(({access_token, expires_in})=> {
 
-                            cookie.save('access_token', access_token, {
-                                maxAge: new Date(expires_in)
-                                , authenticationLevel: 'user'
-                            })
+                            cookie.save('access_token', access_token, {maxAge: new Date(expires_in)})
+                            cookie.save('authentication_level', 'user', {maxAge: new Date(expires_in)})
 
                             this.setState({authStage: 'congrats', showLoading: false})
                         })
