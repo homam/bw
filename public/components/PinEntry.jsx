@@ -1,15 +1,16 @@
 const React = require('react')
+const Loading = require('./Loading.jsx')
 
 module.exports = React.createClass({
 
     handleSubmit(event) {
-        console.log(this.input.value)
-        // this.props.onSubmit(this.input.value)
+        this.props.onSubmit(this.input.value)
         event.preventDefault();
     }
 
     , render() {
         const {name, contest_image} = this.props.contestItem
+        const loading = this.props.loading
 
         return (
             <div className="pin-entry-component">
@@ -38,9 +39,13 @@ module.exports = React.createClass({
                         <input type="number" ref={(input) => this.input = input} />
                     </div>
                     <div className="row">
-                        <input type="submit" className="button" value="Unlock now" />
+                        <button className="button">{loading ? <Loading/> : 'Unlock now'}</button>
                     </div>
                 </form>
+
+                <div className="row">
+                    <p className="error">{this.props.error}</p>
+                </div>
 
                 <div className="row">
                     <div className="separator"></div>

@@ -155,7 +155,9 @@ const registration = (url: string, authKey: string, msisdn: string, contestId: n
         .then(({data})=>
             resolve(R.prop('data')(data))
         )
-        .catch((err)=> reject(err))
+        .catch(({response})=> {
+            return reject(response.data)
+        })
     })
 }
 
@@ -175,7 +177,9 @@ const pinVerification = (url: string, authKey: string, msisdn: string, contestId
         .then(({data})=>
             resolve(R.prop('data')(data))
         )
-        .catch((err)=> reject(err))
+        .catch(({response})=> {
+            return reject(response.data)
+        })
     })
 }
 

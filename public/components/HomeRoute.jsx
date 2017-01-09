@@ -54,13 +54,19 @@ module.exports = React.createClass({
             <div className="home-route">
                 {this.state.authStage == 'msisdn-entry' && <NumberEntry
                     contestItem={R.find((x)=> x.contest_id == this.state.selectedContestId)(this.state.contestList)}
+                    loading={this.state.showLoading}
+                    error={this.state.authError}
                     onSubmit={(msisdn)=> {
+                        this.setState({showLoading: true})
+
                         if (this.state.authenticationLevel == 'anonymous') {
                             registration(msisdn, this.state.selectedContestId, "BigwinApp")
                             .then((d)=> {
-                                this.setState({msisdn: msisdn, authStage: 'pin-entry'})
+                                this.setState({msisdn: msisdn, authStage: 'pin-entry', showLoading: false})
                             })
-                            .catch((e)=> console.log(e))
+                            .catch(({message})=> {
+                                this.setState({showLoading: false, authError: message})
+                            })
                         } else {
                             console.log('subscription flow', this.state.selectedContestId, msisdn)
                         }
@@ -69,7 +75,11 @@ module.exports = React.createClass({
 
                 {this.state.authStage == 'pin-entry' && <PinEntry
                     contestItem={R.find((x)=> x.contest_id == this.state.selectedContestId)(this.state.contestList)}
+                    loading={this.state.showLoading}
+                    error={this.state.authError}
                     onSubmit={(pincode)=> {
+                        this.setState({showLoading: true})
+
                         pinVerification(this.state.msisdn, this.state.selectedContestId, parseInt(pincode))
                         .then(({access_token, expires_in})=> {
 
@@ -78,10 +88,11 @@ module.exports = React.createClass({
                                 , authenticationLevel: 'user'
                             })
 
-                            this.setState({authStage: 'congrats'})
-
+                            this.setState({authStage: 'congrats', showLoading: false})
                         })
-                        .catch((e)=> console.log(e))
+                        .catch(({message})=> {
+                            this.setState({showLoading: false, authError: message})
+                        })
                     }
                 } />}
 
@@ -104,12 +115,16 @@ module.exports = React.createClass({
             , msisdn: string | null
             , authStage: 'msisdn-entry' | 'pin-entry' | 'congrats' | null
             , selectedContestId: number | null
+            , showLoading: boolean
+            , authError: string | null
         } = {
             contestList: []
             , authenticationLevel: cookie.load('authentication_level')
             , msisdn: cookie.load('msisdn')
             , authStage: null
             , selectedContestId: null
+            , showLoading: false
+            , authError: null
         }
 
         return initialState
