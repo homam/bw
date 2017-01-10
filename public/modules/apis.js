@@ -7,7 +7,9 @@ import type {QuizPayload, AnswerPayload, PinPayload, ContestItem, QuestionItem, 
 const {pMemoize} = require('./utils')
 const cookie = require('react-cookie')
 
-const authKey = cookie.load('access_token')
+
+const getAccessToken = ()=> cookie.load('access_token')
+
 
 const calculateHash = (payloadString: string): string => {
     const algString = "alg=HS256,typ=JWT"
@@ -205,9 +207,12 @@ const pinVerification = (url: string, authKey: string, msisdn: string, contestId
 }
 
 
-module.exports.getContestList = pMemoize(()=> getContestList(contestApi, authKey))
-module.exports.getContestQuiz = R.curry(getContestQuiz)(quizApi, authKey)
-module.exports.answerQuiz = R.curry(answerQuiz)(answerApi, authKey)
-module.exports.registration = R.curry(registration)(registrationApi, authKey)
-module.exports.pinVerification = R.curry(pinVerification)(pinVerificationApi, authKey)
-module.exports.subscription = R.curry(subscription)(subscriptionApi, authKey)
+const callApi = (f)=> f(getAccessToken())
+
+
+module.exports.getContestList = pMemoize(()=> callApi(R.curry(getContestList)(contestApi)))
+module.exports.getContestQuiz = (...args)=> callApi(R.curry(getContestQuiz)(quizApi))(...args)
+module.exports.answerQuiz = (...args)=> callApi(R.curry(answerQuiz)(answerApi))(...args)
+module.exports.registration = (...args)=> callApi(R.curry(registration)(registrationApi))(...args)
+module.exports.pinVerification = (...args)=> callApi(R.curry(pinVerification)(pinVerificationApi))(...args)
+module.exports.subscription = (...args)=> callApi(R.curry(subscription)(subscriptionApi))(...args)

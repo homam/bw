@@ -97,7 +97,14 @@ module.exports = React.createClass({
                                 cookie.save('authentication_level', 'user', {maxAge: new Date(expires_in)})
                             }
 
-                            this.setState({authStage: 'congrats', showLoading: false})
+                            // set the state of selected contest as unlocked
+                            this.setState({
+                                authStage: 'congrats'
+                                , showLoading: false
+                                , contestList: R.map((contestItem)=>
+                                    (contestItem.contest_id == this.state.selectedContestId) ? {...contestItem, unlocked: 1} : contestItem
+                                )(this.state.contestList)
+                            })
                         })
                         .catch(({message})=> {
                             this.setState({showLoading: false, authError: message})
@@ -140,7 +147,9 @@ module.exports = React.createClass({
     }
 
     , componentDidMount() {
-        getContestList()
+        // pass the access token to make fresh request (when user logs in, access_token changes and we need to make new request to get the contest list)
+        // just needed to feed the momoizing function to avoid reading from the cache
+        getContestList(cookie.load('access_token'))
         .then((contestList)=> {
             this.setState({contestList: contestList})
         })

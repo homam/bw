@@ -3,6 +3,7 @@
 const React = require('react')
 const R = require('ramda')
 const moment = require('moment')
+const cookie = require('react-cookie')
 const {getContestQuiz, answerQuiz, getContestList} = require('../modules/apis')
 const {waitPromise, wait, waitSeq} = require('../modules/async')
 import type {QuestionItem} from "../../types.js";
@@ -74,7 +75,7 @@ export default class PlayRouteContainer extends React.Component {
 
     this._initTimer = null
 
-    getContestList().then(contestList => {
+    getContestList(cookie.load('access_token')).then(contestList => {
       this.setState({contest: R.find(contestItem =>
         contestItem.contest_id == this.state.contestId, contestList)})
     })
