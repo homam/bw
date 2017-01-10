@@ -2,7 +2,7 @@
 
 const React = require('react')
 const R = require('ramda')
-const {getContestList, registration, pinVerification} = require('../modules/apis')
+const {getContestList, registration, subscription, pinVerification} = require('../modules/apis')
 import type {ContestItem} from "../../types.js"
 const {preloadImages} = require('../modules/utils')
 const {createHashHistory} = require('history')
@@ -37,15 +37,27 @@ module.exports = React.createClass({
         const ContestThumbList = R.map((contestItem)=>
             <ContestThumb
                 key={contestItem.contest_id}
+                loading={(this.state.selectedContestId == contestItem.contest_id && this.state.showLoading)}
                 contestItem={contestItem}
                 onClick={({contest_id, unlocked})=> {
                     if (!!unlocked) {
                         return history.push(`/contest/${contest_id}/play`)
                     } else {
-                        this.setState({
-                            selectedContestId: contest_id
-                            , authStage: ((!!this.state.msisdn) ? 'pin-entry' : 'msisdn-entry')
-                        })
+
+                        if (this.state.authenticationLevel == 'anonymous') {
+                            this.setState({selectedContestId: contest_id, authStage: 'msisdn-entry'})
+                        } else {
+                            this.setState({selectedContestId: contest_id, showLoading: true})
+
+                            subscription(contest_id, "BigwinApp")
+                            .then((d)=> {
+                                this.setState({authStage: 'pin-entry', showLoading: false})
+                            })
+                            .catch(({message})=> {
+                                this.setState({showLoading: false, authError: message})
+                            })
+                        }
+
                     }
                 }} />
         )(this.state.contestList)
@@ -59,17 +71,13 @@ module.exports = React.createClass({
                     onSubmit={(msisdn)=> {
                         this.setState({showLoading: true})
 
-                        if (this.state.authenticationLevel == 'anonymous') {
-                            registration(msisdn, this.state.selectedContestId, "BigwinApp")
-                            .then((d)=> {
-                                this.setState({msisdn: msisdn, authStage: 'pin-entry', showLoading: false})
-                            })
-                            .catch(({message})=> {
-                                this.setState({showLoading: false, authError: message})
-                            })
-                        } else {
-                            console.log('subscription flow', this.state.selectedContestId, msisdn)
-                        }
+                        registration(msisdn, this.state.selectedContestId, "BigwinApp")
+                        .then((d)=> {
+                            this.setState({msisdn: msisdn, authStage: 'pin-entry', showLoading: false})
+                        })
+                        .catch(({message})=> {
+                            this.setState({showLoading: false, authError: message})
+                        })
                     }
                 } />}
 
@@ -83,8 +91,11 @@ module.exports = React.createClass({
                         pinVerification(this.state.msisdn, this.state.selectedContestId, parseInt(pincode))
                         .then(({access_token, expires_in})=> {
 
-                            cookie.save('access_token', access_token, {maxAge: new Date(expires_in)})
-                            cookie.save('authentication_level', 'user', {maxAge: new Date(expires_in)})
+                            if (this.state.authenticationLevel == 'anonymous') {
+                                cookie.save('msisdn', this.state.msisdn, {maxAge: new Date(expires_in)})
+                                cookie.save('access_token', access_token, {maxAge: new Date(expires_in)})
+                                cookie.save('authentication_level', 'user', {maxAge: new Date(expires_in)})
+                            }
 
                             this.setState({authStage: 'congrats', showLoading: false})
                         })

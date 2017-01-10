@@ -2,8 +2,8 @@
 
 const axios = require('axios')
 const R = require('ramda')
-const {contestApi, quizApi, answerApi, imagePath, registrationApi, pinVerificationApi} = require('../config')
-import type {QuizPayload, AnswerPayload, PinPayload, ContestItem, QuestionItem, OptionItem, Answer, RegistrationPayload} from "../../types.js"
+const {contestApi, quizApi, answerApi, imagePath, registrationApi, pinVerificationApi, subscriptionApi} = require('../config')
+import type {QuizPayload, AnswerPayload, PinPayload, ContestItem, QuestionItem, OptionItem, Answer, RegistrationPayload, SubscriptionPayload} from "../../types.js"
 const {pMemoize} = require('./utils')
 const cookie = require('react-cookie')
 
@@ -48,7 +48,7 @@ const constructPayloadString = (payload: Object): string=>
     )(R.toPairs(payload)) + ','
 
 
-const apiRequest = (url: string, authKey: string, hash: string, payload: QuizPayload | AnswerPayload | RegistrationPayload | PinPayload): Promise<Object> =>
+const apiRequest = (url: string, authKey: string, hash: string, payload: QuizPayload | AnswerPayload | RegistrationPayload | PinPayload | SubscriptionPayload): Promise<Object> =>
     axios({
         method: 'post'
         , url: url
@@ -162,6 +162,27 @@ const registration = (url: string, authKey: string, msisdn: string, contestId: n
 }
 
 
+const subscription = (url: string, authKey: string, contestId: number, publisherId: string)=> {
+
+    const payload = {
+        contest_id: contestId
+        , publisherid: publisherId
+    }
+
+    const hash = R.compose(calculateHash, constructPayloadString)(payload)
+
+    return new Promise((resolve, reject)=> {
+        apiRequest(url, authKey, hash, payload)
+        .then(({data})=>
+            resolve(R.prop('data')(data))
+        )
+        .catch(({response})=> {
+            return reject(response.data)
+        })
+    })
+}
+
+
 const pinVerification = (url: string, authKey: string, msisdn: string, contestId: number, pincode: number)=> {
 
     const payload = {
@@ -189,3 +210,4 @@ module.exports.getContestQuiz = R.curry(getContestQuiz)(quizApi, authKey)
 module.exports.answerQuiz = R.curry(answerQuiz)(answerApi, authKey)
 module.exports.registration = R.curry(registration)(registrationApi, authKey)
 module.exports.pinVerification = R.curry(pinVerification)(pinVerificationApi, authKey)
+module.exports.subscription = R.curry(subscription)(subscriptionApi, authKey)

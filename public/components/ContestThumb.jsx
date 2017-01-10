@@ -5,10 +5,11 @@ const moment = require('moment')
 const {Link} = require('react-router')
 import type {ContestItem} from "../../types.js";
 const Button = require('./Button.jsx')
+const Loading = require('./Loading.jsx')
 
-module.exports = (props:{contestItem: ContestItem, onClick: (contestItem: contestItem) => any})=> {
+module.exports = (props:{contestItem: ContestItem, loading: boolean, onClick: (contestItem: contestItem) => any})=> {
 
-    const {contestItem, onClick} = props
+    const {contestItem, onClick, loading} = props
     const {contest_id, name, best_time, contest_image, time_remaining, unlocked} = contestItem
     const time = moment(best_time || 0)
 
@@ -31,7 +32,9 @@ module.exports = (props:{contestItem: ContestItem, onClick: (contestItem: contes
                         </div>
                     </div>
 
-                    <a href="javascript:void(0)" onClick={() => onClick(contestItem)} className="button round">Play Now</a>
+                    <a href="javascript:void(0)" onClick={() => onClick(contestItem)} className="button round">
+                    {loading ? <Loading /> : 'Play Now'}
+                    </a>
 
                 </div>
 
