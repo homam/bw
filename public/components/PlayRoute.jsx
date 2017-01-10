@@ -217,6 +217,9 @@ export default class PlayRouteContainer extends React.Component {
     const progress = this.state.completed ? 100 : nextTwoQuestions.length == 0 ? 0 : calculateProgress(nextTwoQuestions[0].question_number, nextTwoQuestions[0].total_questions)
 
     return <div className={"play-route" + (this.state.showTimer ? ' show-timer' : '') + (this.state.transitioning ? ' transitioning' : '') + (this.state.showPenalty ? ' show-penalty' : '')}>
+      <div className={'penalty ' + (this.state.showPenalty ? 'in' : '')}>
+        <Penalty />
+      </div>
       <ContestInfo
           key={this.state.contestId}
           contestItem={this.state.contest}
@@ -231,9 +234,6 @@ export default class PlayRouteContainer extends React.Component {
         <ProgressBar progress={progress} />
         {this.state.showTimer ? <PlayCountdown from={playCountdownFrom} /> : ''}
         {this.state.completed ? <Congrats /> : <div className='questions'>{questionElements}</div>}
-      </div>
-      <div className={'penalty ' + (this.state.showPenalty ? 'in' : '')}>
-        <Penalty />
       </div>
     </div>
   }
