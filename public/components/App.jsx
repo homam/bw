@@ -8,6 +8,7 @@ const { TransitionMotion, spring } = require('react-motion')
 const Header = require('./Header.jsx')
 const HomeRoute = require('./HomeRoute.jsx')
 import PlayRoute from './PlayRoute.jsx'
+import ProfileRoute from './ProfileRoute.jsx'
 const Menu = require('./Menu.jsx')
 
 const fadeStyles =  {
@@ -84,6 +85,7 @@ class App extends React.Component {
                 <div className="body">
                     <MatchWithFade label="home" pattern="/" exactly component={HomeRoute} />
                     <MatchWithFade label="play" pattern="/contest/:contestId/play" exactly component={PlayRoute} />
+                    <MatchWithFade label="profile" pattern="/profile" exactly component={ProfileRoute} />
                 </div>
             </div>
         )

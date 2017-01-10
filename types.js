@@ -68,3 +68,8 @@ export type Answer = {
     , is_completed: boolean
     , result_message: string
 }
+
+export type Profile = {
+    first_name: string
+    , telephone: number
+}

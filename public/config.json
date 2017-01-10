@@ -6,5 +6,6 @@
     "registrationApi": "/api/user/auth/register",
     "pinVerificationApi": "/api/user/contest/subscribe/verify",
     "subscriptionApi": "/api/user/contest/subscribe",
-    "imagePath": "http://stage.prizefrenzy.com/api/games/"
+    "imagePath": "http://stage.prizefrenzy.com/api/games/",
+    "profileApi": "/api/user/user/profile"
 }

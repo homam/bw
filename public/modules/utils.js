@@ -31,6 +31,18 @@ const preloadImages = (images: Array<string>)=>
     R.map((x)=> (new Image()).src = x)(images)
 
 
+const debounce = (fn, delay)=> {
+    let timer = null
+
+    return (...args)=> {
+        const context = this
+        clearTimeout(timer)
+
+        timer = setTimeout(()=> fn.apply(context, args), delay)
+    }
+}
+
 module.exports.pEachSequence = R.curry(pEachSequence)
 module.exports.pMemoize = pMemoize
 module.exports.preloadImages = preloadImages
+module.exports.debounce = debounce

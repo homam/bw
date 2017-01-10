@@ -2,8 +2,8 @@
 
 const axios = require('axios')
 const R = require('ramda')
-const {contestApi, quizApi, answerApi, imagePath, registrationApi, pinVerificationApi, subscriptionApi} = require('../config')
-import type {QuizPayload, AnswerPayload, PinPayload, ContestItem, QuestionItem, OptionItem, Answer, RegistrationPayload, SubscriptionPayload} from "../../types.js"
+const {contestApi, quizApi, answerApi, imagePath, registrationApi, pinVerificationApi, subscriptionApi, profileApi} = require('../config')
+import type {QuizPayload, AnswerPayload, PinPayload, ContestItem, QuestionItem, OptionItem, Answer, RegistrationPayload, SubscriptionPayload, Profile} from "../../types.js"
 const {pMemoize} = require('./utils')
 const cookie = require('react-cookie')
 
@@ -50,7 +50,7 @@ const constructPayloadString = (payload: Object): string=>
     )(R.toPairs(payload)) + ','
 
 
-const apiRequest = (url: string, authKey: string, hash: string, payload: QuizPayload | AnswerPayload | RegistrationPayload | PinPayload | SubscriptionPayload): Promise<Object> =>
+const apiRequest = (url: string, authKey: string, hash: string, payload: Object): Promise<Object> =>
     axios({
         method: 'post'
         , url: url
@@ -207,6 +207,46 @@ const pinVerification = (url: string, authKey: string, msisdn: string, contestId
 }
 
 
+const getProfile = (url: string, authKey: string): Promise<Profile> => new Promise((resolve, reject)=>
+
+    axios({
+        method: 'get'
+        , url: url
+        , headers: {
+            'Authorization': `Bearer ${authKey}`
+        }
+    })
+    .then(({data})=> {
+        const profile = R.compose(
+            R.prop('data')
+        )(data)
+
+        resolve(profile)
+    })
+    .catch(reject)
+)
+
+
+const updateProfile = (url: string, authKey: string, first_name: string)=> {
+
+    const payload = {
+        first_name: first_name
+    }
+
+    const hash = R.compose(calculateHash, constructPayloadString)(payload)
+
+    return new Promise((resolve, reject)=> {
+        apiRequest(url, authKey, hash, payload)
+        .then(({data})=>
+            resolve(R.prop('data')(data))
+        )
+        .catch(({response})=> {
+            return reject(response.data)
+        })
+    })
+}
+
+
 const callApi = (f)=> f(getAccessToken())
 
 
@@ -216,3 +256,5 @@ module.exports.answerQuiz = (...args)=> callApi(R.curry(answerQuiz)(answerApi))(
 module.exports.registration = (...args)=> callApi(R.curry(registration)(registrationApi))(...args)
 module.exports.pinVerification = (...args)=> callApi(R.curry(pinVerification)(pinVerificationApi))(...args)
 module.exports.subscription = (...args)=> callApi(R.curry(subscription)(subscriptionApi))(...args)
+module.exports.getProfile = ()=> callApi(R.curry(getProfile)(profileApi))
+module.exports.updateProfile = (...args)=> callApi(R.curry(updateProfile)(profileApi))(...args)
