@@ -13,6 +13,8 @@ const buffer = require('vinyl-buffer');
 const uglify = require('gulp-uglify');
 const ifElse = require('gulp-if-else');
 const config = require('./config');
+const autoprefixer = require('autoprefixer')
+const postcss = require('gulp-postcss')
 
 process.env.NODE_ENV = config.env
 
@@ -34,6 +36,10 @@ gulp.task('build:scripts', (done) => {
     const t1 = browserify('./public/components/App.jsx')
         .transform(babelify, { presets: ['es2015', 'react', 'stage-2'] })
         .bundle()
+        .on('error', function (err) {
+            console.log(err.toString());
+            this.emit("end");
+        })
         .pipe(source('bundle.js'))
         .pipe(ifElse(config.env == 'production', buffer))
         .pipe(ifElse(config.env == 'production', uglify))
@@ -51,6 +57,7 @@ gulp.task('build:scripts', (done) => {
 gulp.task('build:styles', () => {
     gulp.src(['./public/components/App.styl'])
         .pipe(stylus({ use: nib(), compress: true, 'include css': true }))
+        .pipe(postcss([autoprefixer]))
         .pipe(gulp.dest('./public/components'));
 });
 
