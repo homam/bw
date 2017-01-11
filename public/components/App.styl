@@ -34,6 +34,43 @@ menu-transition()
 .transition
     transition: opacity 0.3s;
 
+.icon-close
+    display block
+    background-image url(/img/icon-close.png)
+    width 24px
+    height 24px
+
+
+.icon-game
+    display block
+    background-image url(/img/icon-games.png)
+    width 24px
+    height 24px
+
+.icon-profile
+    display block
+    background-image url(/img/icon-name.png)
+    width 24px
+    height 24px
+
+.icon-transaction
+    display block
+    background-image url(/img/icon-transactions.png)
+    width 24px
+    height 24px
+
+.icon-feedback
+    display block
+    background-image url(/img/icon-feedback.png)
+    width 24px
+    height 24px
+
+.icon-about
+    display block
+    background-image url(/img/icon-about.png)
+    width 24px
+    height 24px
+
 body
   font-family: 'Roboto'
   abs-container()
@@ -83,29 +120,34 @@ body
         width: menu-width;
         bottom: 0;
         z-index: 120;
-        background-color: #333;
+        background-color: #fff;
         menu-transition()
         transform: translate3d(menu-width, 0, 0);
-        box-shadow: inset 3px 0px 19px 3px rgba(0, 0, 0, 0.76)
+        // box-shadow: inset 3px 0px 19px 3px rgba(0, 0, 0, 0.76)
+        // border 1px solid #000
 
     > .menu-blocker
-      display: none
+    //   display: none
       position: fixed
       top: 0
-      right: menu-width
-      left: 0
+      right: 0
       bottom: 0
+      width 100%
+      menu-transition()
+      background-color rgba(0,0,0,0.7)
+      transform translate3d(100%, 0, 0)
+      z-index 110
 
     &.menu-open
       > .menu
         transform: translate3d(0, 0, 0);
 
       > .body, header
-        transform: translate3d(-1 * menu-width, 0, 0);
+        // transform: translate3d(-1 * menu-width, 0, 0);
 
       > .menu-blocker
-        display: block;
-        z-index: 220;
+        // display: block;
+        transform: translate3d(0, 0, 0);
 
       > .body
         overflow-y: hidden;

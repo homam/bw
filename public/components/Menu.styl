@@ -1,16 +1,39 @@
 .menu-component
 
-    ul
+    .nav
         list-style-type none
-        margin-left: 14px;
-        padding: 0;
+        margin-left 14px
+        padding 0
+        height 50px
+        padding-top 15px
+
+        .row
+            margin-top 20px
+            display flex
+
+            div
+                border-bottom solid 1px #c1c1c1
+                height 30px
+                flex-grow 1
+                margin-left 15px
+
+    .close-container
+        display flex
+        justify-content flex-end
+        height 40px
+        margin-top 20px
+        margin-right 20px
+
+        div
+            margin-right 10px
+            text-transform uppercase
 
     li
-        border-bottom solid 1px #525252
+        // border-bottom solid 1px #525252
         padding: 12px 0
 
     a
-        color #fff
+        color #7F7F7F
         font-weight bold
         text-decoration: none;
 
@@ -19,3 +42,13 @@
 
     .right-off-canvas-menu
         padding-top 20px
+
+    .logo-container
+        background url(/img/bg-red-burst.png)
+        background-size cover
+        height 150px
+        background-position-y -45px
+        display flex
+
+        img
+            margin auto
