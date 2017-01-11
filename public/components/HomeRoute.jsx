@@ -101,14 +101,10 @@ module.exports = React.createClass({
                                     cookie.save('authentication_level', 'user', {maxAge: new Date(expires_in)})
                                 }
 
-                                // set the state of selected contest as unlocked
-                                this.setState({
-                                    authStage: 'congrats'
-                                    , showLoading: false
-                                    , contestList: R.map((contestItem)=>
-                                        (contestItem.contest_id == this.state.selectedContestId) ? {...contestItem, unlocked: 1} : contestItem
-                                    )(this.state.contestList)
-                                })
+                                // clean the cache of the memoized function to load the new list of contests
+                                getContestList.cleanCache()
+
+                                this.setState({authStage: 'congrats', showLoading: false})
                             })
                             .catch(({message})=> {
                                 this.setState({showLoading: false, authError: message})

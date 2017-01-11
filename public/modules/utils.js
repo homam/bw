@@ -5,9 +5,9 @@ const pEachSequence = (f, xs)=> Promise.reduce(xs, (_, x)=> f(x), 0)
 
 
 const pMemoize = (f)=> {
-    const cache = {}
+    let cache = {}
 
-    return (...args)=> {
+    const memoizedF = (...args)=> {
         const key = JSON.stringify(args)
         const valueInCache = R.prop(key, cache)
 
@@ -24,6 +24,10 @@ const pMemoize = (f)=> {
             }
         })
     }
+
+    memoizedF.cleanCache = ()=> cache = {}
+
+    return memoizedF
 }
 
 
