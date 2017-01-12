@@ -6,7 +6,7 @@ const R = require('ramda')
 const {Match, Miss, Link, Redirect, BrowserRouter, HashRouter} = require('react-router')
 const { TransitionMotion, spring } = require('react-motion')
 const Header = require('./Header.jsx')
-const HomeRoute = require('./HomeRoute.jsx')
+import HomeRoute from './HomeRoute.jsx'
 import PlayRoute from './PlayRoute.jsx'
 import ProfileRoute from './ProfileRoute.jsx'
 const Menu = require('./Menu.jsx')
@@ -90,7 +90,18 @@ class App extends React.Component {
                     <Header routeName={currentRouteName} toggleMenu={this.toggleMenu.bind(this)} />
                 </header>
                 <div className="body">
-                    <MatchWithFade label="home" pattern="/" exactly component={HomeRoute} />
+                    <MatchWithFade
+                        label="home"
+                        pattern="/"
+                        exactly
+                        component={HomeRoute}
+                        authenticationLevel={this.state.authenticationLevel}
+                        msisdn={this.state.msisdn}
+                        accessToken={this.state.accessToken}
+                        onChange={({authenticationLevel, msisdn, accessToken})=> {
+                            this.setState({authenticationLevel, msisdn, accessToken})
+                        }}
+                    />
                     <MatchWithFade label="play" pattern="/contest/:contestId/play" exactly component={PlayRoute} />
                     <MatchWithFade label="profile" pattern="/profile" exactly component={ProfileRoute} />
                 </div>
