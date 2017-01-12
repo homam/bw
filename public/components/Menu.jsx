@@ -1,7 +1,7 @@
 const React = require('react')
 const {Link} = require('react-router')
 
-module.exports = (props:{toggleMenu: () => any})=> {
+module.exports = (props:{isAuthenticated: boolean, toggleMenu: () => any})=> {
 
     return (
     <div className="menu-component">
@@ -19,14 +19,19 @@ module.exports = (props:{toggleMenu: () => any})=> {
                 <div><a className="right-off-canvas-toggle" href="#" onClick={props.toggleMenu}>Games</a></div>
             </div>
 
+            {props.isAuthenticated &&
             <div className="row">
                 <i className="icon-profile"></i>
                 <div><Link className="right-off-canvas-toggle" to="/profile" onClick={props.toggleMenu}>Profile</Link></div>
             </div>
+            }
+            {props.isAuthenticated &&
             <div className="row">
                 <i className="icon-transaction"></i>
                 <div><a className="right-off-canvas-toggle active" href="#" onClick={props.toggleMenu}>Transactions</a></div>
             </div>
+            }
+
             <div className="row">
                 <i className="icon-feedback"></i>
                 <div><a className="right-off-canvas-toggle" href="#" onClick={props.toggleMenu}>Feedback</a></div>

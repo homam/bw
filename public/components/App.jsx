@@ -10,6 +10,7 @@ const HomeRoute = require('./HomeRoute.jsx')
 import PlayRoute from './PlayRoute.jsx'
 import ProfileRoute from './ProfileRoute.jsx'
 const Menu = require('./Menu.jsx')
+const cookie = require('react-cookie')
 
 const fadeStyles =  {
   position: 'absolute', left: 0, right: 0, top: 0, bottom: 0
@@ -49,14 +50,20 @@ const MatchWithFade = ({ component:Component, ...rest }) => {
 class App extends React.Component {
 
     state: {
-      isMenuOpen: bool
+        authenticationLevel: ?string
+        , msisdn: ?string
+        , accessToken: ?string
+        , isMenuOpen: bool
     }
 
     constructor(props) {
-      super(props)
-      this.state = {
-        isMenuOpen: false
-      }
+        super(props)
+        this.state = {
+            authenticationLevel: (cookie.load('authentication_level') : ?string)
+            , msisdn: (cookie.load('msisdn') : ?string)
+            , accessToken: (cookie.load('access_token') : ?string)
+            , isMenuOpen: false
+        }
     }
 
     toggleMenu() {
@@ -76,7 +83,7 @@ class App extends React.Component {
         return (
             <div className={`container${this.state.isMenuOpen ? ' menu-open' : ''}`}>
                 <div className="menu">
-                    <Menu toggleMenu={this.toggleMenu.bind(this)} />
+                    <Menu isAuthenticated={this.state.authenticationLevel == 'user'} toggleMenu={this.toggleMenu.bind(this)} />
                 </div>
                 <div className="menu-blocker" onTouchStart={() => this.toggleMenu()} />
                 <header>
@@ -95,7 +102,7 @@ class App extends React.Component {
 
 ReactDOM.render(
     <HashRouter>
-        <Match pattern="/" component={App}/>
+        <Match pattern="/" component={App} />
     </HashRouter>
     , document.getElementById('app-container')
 )
