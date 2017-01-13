@@ -13,7 +13,7 @@ const getAccessToken = ()=> cookie.load('access_token')
 
 const calculateHash = (payloadString: string): string => {
     const algString = "alg=HS256,typ=JWT"
-    const clientSecreteString = "DUhMrFggWqa47mJ54m2YLLVqRJ23KRJZ"
+    const clientSecreteString = "yAu6XJthJo959BAWVWeCQXBsUM196gpc"
 
     //Create base 64 hash of each string and combine it to create a hash
     const alg = new Buffer(algString).toString('base64')
