@@ -106,7 +106,7 @@ class HomeRoute extends React.Component {
                         onSubmit={(pincode)=> {
                             this.setState({showLoading: true})
 
-                            pinVerification(this.state.formMsisdn, this.state.selectedContestId, parseInt(pincode))
+                            pinVerification(this.state.formMsisdn || this.props.msisdn, this.state.selectedContestId, parseInt(pincode))
                             .then(({access_token, expires_in})=> {
 
                                 if (this.props.authenticationLevel == 'anonymous') {
