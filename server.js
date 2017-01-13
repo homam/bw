@@ -25,7 +25,6 @@ const authentication = (req, res, next)=> {
     if (!!access_token)
         return next()
 
-    // @TODO: in case of header enrichment, create user account and generate auth token by loggin in
     // receive new anonymouse access token
     generateAccessToken(`${apiDomain}/api/user/access_token/user`, {grant_type: 'client_credentials', client_id: clientId, client_secret: clientSecret})
     .then(({data})=> {
@@ -48,7 +47,7 @@ app.get('/', authentication, (req, res, next)=> {
 app.use(express.static('./public'))
 
 app.all('/api/*', (req, res) => {
-  apiProxy.web(req, res, {target: 'http://stage.prizefrenzy.com/'})
+  apiProxy.web(req, res, {target: `${apiDomain}/`})
 })
 
 app.listen(port, ()=> console.log(`listening to port: ${port}`))

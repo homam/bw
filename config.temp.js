@@ -1,7 +1,7 @@
 module.exports = {
     env: 'development'
     , port: 8000
-    , clientId : 'KTE44uAv3V'
-    , clientSecret: 'DUhMrFggWqa47mJ54m2YLLVqRJ23KRJZ'
-    , apiDomain: 'http://stage.prizefrenzy.com'
+    , clientId : 'giQ9n1JwR8Pb'
+    , clientSecret: 'yAu6XJthJo959BAWVWeCQXBsUM196gpc'
+    , apiDomain: 'http://sg-stage.prizefrenzy.com'
 }
