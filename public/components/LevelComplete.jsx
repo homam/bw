@@ -3,8 +3,8 @@
 const React = require('react')
 const {pluralize} = require('../modules/utils')
 
-module.exports = (props: {level: number, totalLevels: number})=> {
-    const {level, totalLevels} = props
+module.exports = (props: {level: number, totalLevels: number, onClick: ()=> any})=> {
+    const {level, totalLevels, onClick} = props
     const levelsLeft = totalLevels - level
 
     return (
@@ -18,7 +18,7 @@ module.exports = (props: {level: number, totalLevels: number})=> {
                 <p>You are {levelsLeft} {pluralize(levelsLeft, 'level')} away from winning!</p>
             </div>
 
-            <a href="javascript:void(0)" onClick={() => onClick(contestItem)} className="button round">Start level {level + 1}</a>
+            <a href="javascript:void(0)" onClick={() => onClick()} className="button round">Start level {level + 1}</a>
         </div>
     )
 }
