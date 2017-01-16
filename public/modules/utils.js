@@ -46,7 +46,13 @@ const debounce = (fn, delay)=> {
     }
 }
 
+
+const pluralize = (amount, word)=>
+    (amount > 1) ? `${word}s` : word
+
+
 module.exports.pEachSequence = R.curry(pEachSequence)
 module.exports.pMemoize = pMemoize
 module.exports.preloadImages = preloadImages
 module.exports.debounce = debounce
+module.exports.pluralize = pluralize
