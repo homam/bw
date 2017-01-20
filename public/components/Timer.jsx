@@ -1,38 +1,99 @@
+// @flow
+
 const React = require('react')
 const moment = require('moment')
-const ReactTimeout = require('react-timeout')
+import type {TimerState} from "../../types.js"
 
-
-const formatTime = (ms: number): string => {
-    const time = moment(ms)
-    return time.format('mm: ss: SS')
+type Props = {
+    elapsed: number
+    , availableTime: ?number
+    , state: TimerState
+    , onTimeout: ()=> any
 }
 
 
-module.exports = ReactTimeout(React.createClass({
+const formatTime = (ms: number): string =>
+    moment(ms).format('mm: ss: SS')
 
-    elapsed: 0
 
-    , render() {
-        // set the time returned by the api at the end of the contest
-        if (!!this.props.elapsed)
+export default class Timer extends React.Component {
+
+    elapsed: number
+    timer: ?number
+
+    constructor(props: Props){
+        super(props)
+
+        this.elapsed = 0
+        this.timer = null
+    }
+
+    render() {
+        return (
+            <div className="timer-component" ref="timer">--: --: --</div>
+        )
+    }
+
+    componentDidUpdate(prevProps: Props) {
+        // when component renders, the availableTime is not known
+        // start the tick() when its available
+        if (!!this.props.availableTime && prevProps.availableTime != this.props.availableTime) {
+            window.clearTimeout(this.timer)
+            this.start()
+        }
+
+        // sync the elapsed time with the server
+        if (!!this.props.elapsed && prevProps.elapsed != this.props.elapsed) {
+            // window.clearTimeout(this.timer)
             this.elapsed = this.props.elapsed
+            // this.start()
+        }
 
-        return <div className="timer-component" ref="timer">{formatTime(this.elapsed)}</div>
+        // manage the state of the timer
+        switch (this.props.state) {
+            case 'pause':
+                this.pause()
+                break;
+            case 'start':
+                this.start()
+                break;
+            case 'restart':
+                this.restart()
+                break;
+        }
     }
 
-    , componentDidMount() {
-        if (!this.props.pause && !this.props.elapsed)
-            this.props.setTimeout(this.tick, 50)
+    componentWillUnmount() {
+        this.pause()
     }
 
-    , tick() {
-
-        if (!this.props.pause && !this.props.elapsed)
-            this.elapsed = new Date() - this.props.startTime + this.props.penaltyMs
-            this.refs.timer.innerHTML = formatTime(this.elapsed)
-
-            this.props.setTimeout(this.tick, 50)
+    pause() {
+        window.clearTimeout(this.timer)
     }
 
-}))
+    start() {
+        this.tick()
+    }
+
+    restart() {
+        this.pause()
+        this.elapsed = 0
+        this.start()
+    }
+
+    tick() {
+        this.elapsed = this.elapsed + 50
+        const timeLeft = this.props.availableTime - this.elapsed
+
+        this.refs.timer.innerHTML = formatTime(timeLeft <= 0 ? 0 : timeLeft)
+
+        if (timeLeft <= 0) {
+            this.pause()
+            this.props.onTimeout()
+            return
+        }
+
+        this.timer = setTimeout(this.tick.bind(this), 50)
+    }
+
+}

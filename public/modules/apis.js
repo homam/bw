@@ -3,7 +3,7 @@
 const axios = require('axios')
 const R = require('ramda')
 const {contestApi, quizApi, answerApi, registrationApi, pinVerificationApi, subscriptionApi, profileApi} = require('../config')
-import type {QuizPayload, AnswerPayload, PinPayload, ContestItem, QuestionItem, OptionItem, Answer, RegistrationPayload, SubscriptionPayload, Profile} from "../../types.js"
+import type {QuizPayload, AnswerPayload, PinPayload, ContestItem, QuestionItem, OptionItem, Answer, RegistrationPayload, SubscriptionPayload, Profile, LevelItem} from "../../types.js"
 const {pMemoize} = require('./utils')
 const cookie = require('react-cookie')
 
@@ -71,12 +71,16 @@ const getContestList = (url: string, authKey: string): Promise<Array<ContestItem
 )
 
 
-const getContestQuiz = (url: string, authKey: string, contestId: number, questionNumber: number): Promise<QuestionItem> => {
+const constructQuestionItem = (item)=> {
+    return {...item, options: JSON.parse(item.options).Options}
+}
+
+const getContestQuiz = (url: string, authKey: string, contestId: number, level: number): Promise<LevelItem> => {
 
     const payload = {
         contest_id: contestId
-        , options_limit: 12
-        , question_number: questionNumber
+        , options_limit: 0
+        , level: level
     }
 
     const hash = R.compose(calculateHash, constructPayloadString)(payload)
@@ -84,21 +88,9 @@ const getContestQuiz = (url: string, authKey: string, contestId: number, questio
     return new Promise((resolve, reject)=>
         apiRequest(url, authKey, hash, payload)
         .then(({data})=> {
+            const d = R.prop('data', data)
 
-            const question: QuestionItem = R.compose(
-                (item)=> {
-                    return {
-                        ...item
-                        , options: R.compose(
-                            R.prop('Options')
-                            , JSON.parse
-                            , R.prop('options')
-                        )(item)
-                    }
-                }
-                , R.prop('data')
-            )(data)
-
+            const question: LevelItem = {...d, questions: R.compose(R.map(constructQuestionItem), R.values)(d.questions)}
             resolve(question)
         })
         .catch(reject)
@@ -106,12 +98,12 @@ const getContestQuiz = (url: string, authKey: string, contestId: number, questio
 }
 
 
-const answerQuiz = (url: string, authKey: string, contestId: number, questionId: number, questionNumber: number, answer: string): Promise<Answer> => {
+const answerQuiz = (url: string, authKey: string, contestId: number, questionId: number, level: number, answer: string): Promise<Answer> => {
 
     const payload = {
         contest_id: contestId
         , question_id: questionId
-        , question_number: questionNumber
+        , level: level
         , answer: answer
     }
 

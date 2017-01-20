@@ -5,13 +5,13 @@ export type GrantType = 'client_credentials' | 'password' | 'email_access_token'
 export type QuizPayload = {
     contest_id: number
     , options_limit: number
-    , question_number: number
+    , level: number
 }
 
 export type AnswerPayload = {
     contest_id: number
     , question_id: number
-    , question_number: number
+    , level: number
     , answer: string
 }
 
@@ -51,9 +51,6 @@ export type QuestionItem = {
     , options: Array<OptionItem>
     , option_type: string
     , question_id: number
-    , total_questions: number
-    , question_number: number
-    , contest_id: number
     , _status: {
         answered: boolean
       , isCorrect: ?boolean
@@ -62,14 +59,28 @@ export type QuestionItem = {
     } | null
 }
 
+export type LevelItem = {
+    contest_id: number
+    , level: number
+    , questions: Array<QuestionItem>
+    , total_levels: number
+    , total_questions: number
+    , total_time_elapsed: number
+    , level_time_available: number
+}
+
 export type Answer = {
-    answer_result: string
-    , fastest_player: string | boolean
-    , is_completed: boolean
-    , result_message: string
+    is_correct: boolean
+    , is_contest_complete: string
+    , is_level_complete: boolean
+    , total_time_elapsed: number
+    , level_time_elapsed: number
+    , total_time_available: number
 }
 
 export type Profile = {
     first_name: string
     , telephone: number
 }
+
+export type TimerState = 'pause' | 'start' | 'restart' | null

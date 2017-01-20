@@ -1,13 +1,13 @@
 // @flow
 
 const React = require('react')
-import type {ContestItem} from "../../types.js";
+import type {ContestItem, TimerState} from "../../types.js"
 
-const Timer = require('./Timer.jsx')
+import Timer from './Timer.jsx'
 
-module.exports = (props:{contestItem: ?ContestItem, startTime: number, penaltyMs: number, completed: boolean, elapsed: ?number})=> {
+module.exports = (props:{contestItem: ?ContestItem, timerState: TimerState, elapsed: ?number, availableTime: ?number, onTimeout: ()=> any})=> {
 
-    const {startTime, penaltyMs, completed, contestItem, elapsed} = props
+    const {timerState, contestItem, elapsed, availableTime, onTimeout} = props
 
     return (
         <div className="contest-info-component">
@@ -17,7 +17,7 @@ module.exports = (props:{contestItem: ?ContestItem, startTime: number, penaltyMs
                   {!contestItem ? '' : contestItem.name}
               </div>
               <div className="row timer">
-                  <Timer startTime={startTime} penaltyMs={penaltyMs} pause={completed} elapsed={elapsed}/>
+                  <Timer state={timerState} elapsed={elapsed} availableTime={availableTime} onTimeout={onTimeout}/>
               </div>
           </div>
         </div>)

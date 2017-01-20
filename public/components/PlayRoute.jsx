@@ -6,7 +6,7 @@ const moment = require('moment')
 const cookie = require('react-cookie')
 const {getContestQuiz, answerQuiz, getContestList} = require('../modules/apis')
 const {waitPromise, wait, waitSeq} = require('../modules/async')
-import type {QuestionItem} from "../../types.js";
+import type {QuestionItem, LevelItem, TimerState, ContestItem} from "../../types.js";
 
 const ContestInfo = require('./ContestInfo.jsx')
 const Question = require('./Question.jsx')
@@ -14,26 +14,16 @@ const Penalty = require('./Penalty.jsx')
 const PlayCountdown = require('./PlayCountdown.jsx')
 const Congrats = require('./Congrats.jsx')
 const ProgressBar = require('./ProgressBar.jsx')
-const playCountdownFrom = 4
+const BulletBar = require('./BulletBar.jsx')
+const LevelComplete = require('./LevelComplete.jsx')
 const sfx = require('../modules/sfx')
 const {preloadImages} = require('../modules/utils')
+const playCountdownFrom = 4
+
 
 const calculateProgress = (currentQuestion: number, totalQuestions: number): number =>
     currentQuestion * 100 / totalQuestions
 
-const loadAllQuizzes = (contestId: number) : Promise<[QuestionItem]> => {
-  const loadNextQuiz = (acc : Array<QuestionItem>, questionNumber: number) =>
-    getContestQuiz(contestId, questionNumber).then(question => {
-      const newQuestion = {...question, _status: {answered: false, isCorrect: null, answer: null, tapped: false}}
-      return newQuestion
-    }).then(q => {
-      if(q.total_questions > questionNumber + 1)
-        return loadNextQuiz(acc.concat([q]), questionNumber + 1)
-      else return acc.concat([q])
-    })
-
-  return loadNextQuiz([], 0)
-}
 
 const vibrateDevice = (ms: number)=> {
     if (!!navigator.vibrate)
@@ -41,200 +31,263 @@ const vibrateDevice = (ms: number)=> {
 }
 
 export default class PlayRouteContainer extends React.Component {
-  state: {
-      showTimer: bool
-    , transitioning: bool
-    , showPenalty: bool
-    , contestId: number
-    , contest: ?Object
-    , startTime : number
-    , penaltyMs : number
-    , completed : boolean
-    , questions: QuestionItem[]
-    , currentQuestionIndex: number
-    , elapsed: ?number
-  }
-
-  _initTimer: ?number
-
-  constructor(props : Object) {
-    super(props);
-    this.state = {
-        showTimer: true
-      , transitioning: false
-      , showPenalty: false
-      , contestId: (parseInt(props.params.contestId) : number)
-      , contest: (null : ?Object)
-      , startTime : (new Date().valueOf() : number)
-      , penaltyMs : 0
-      , completed : false
-      , questions: ([] : QuestionItem[])
-      , currentQuestionIndex: (-1 : number)
-      , elapsed: (null : ?Object)
-    };
-
-    this._initTimer = null
-
-    getContestList(cookie.load('access_token')).then(contestList => {
-      this.setState({contest: R.find(contestItem =>
-        contestItem.contest_id == this.state.contestId, contestList)})
-    })
-
-    loadAllQuizzes(this.state.contestId).then(questions => {
-      this.setState({questions})
-      this.nextQuestion()
-    })
-
-  }
-
-  nextQuestion() {
-    const currentQuestionIndex = this.state.currentQuestionIndex + 1
-    this.setState({currentQuestionIndex})
-  }
-
-  componentWillMount() {
-    this._initTimer = window.setTimeout(() => {
-        this.setState({showTimer: false})
-    }, (playCountdownFrom + 1) * 1000)
-  }
-
-  componentWillUnmount() {
-    window.clearTimeout(this._initTimer)
-  }
-
-  showPenalty() {
-      this.setState({showPenalty: true})
-
-      setTimeout(() => this.setState({showPenalty: false}), 1400)
-  }
-
-  answer(title : string) {
-
-    // update status of the current question tapped
-    let currentQuestion = this.state.questions[this.state.currentQuestionIndex]
-
-    const selectedOption = R.find((x)=> x.title == title)(currentQuestion.options)
-
-    // ignore the tap on previously selected wrong option
-    if (selectedOption._status && selectedOption._status.answered)
-        return false
-
-    const updateQuestion_status = status => {
-
-        const updatedQuestion = {
-            ...currentQuestion,
-            _status: {...currentQuestion._status, ...status},
-            options: R.map((option)=> {
-                if (option.title == status.answer && status.answered) {
-                    return {...option, _status: status}
-                } else {
-                    return option
-                }
-            })(currentQuestion.options)
-        }
-
-        let questions = this.state.questions
-        questions[this.state.currentQuestionIndex] = updatedQuestion
-        this.setState({questions})
+    state: {
+        transitioning: bool
+        , showPenalty: bool
+        , contestId: number
+        , contest: ?ContestItem
+        , levels: Array<LevelItem>
+        , currentLevelIndex: number
+        , currentQuestionIndex: number
+        , elapsed: number
+        , timerState: TimerState
+        , currentState: 'countdown' | 'question' | 'level_complete' | 'congrats'
     }
 
-    updateQuestion_status({tapped: true, answer: title, answered: false, isCorrect: null})
+    _initTimer: ?number
 
-    answerQuiz(this.state.contestId, currentQuestion.question_id, currentQuestion.question_number, title)
-    .then(({answer_result, is_completed, fastest_player, result_message})=> {
+    constructor(props : Object) {
+        super(props)
+        this.state = {
+            transitioning: false
+            , showPenalty: false
+            , contestId: (parseInt(props.params.contestId) : number)
+            , contest: (null : ?ContestItem)
+            , levels: ([] : LevelItem[])
+            , currentLevelIndex: 0
+            , currentQuestionIndex: (-1 : number)
+            , elapsed: 0
+            , timerState: (null: TimerState)
+            , currentState: 'countdown'
+        };
 
-        // result_message represents time it took the user to finish the quiz as string
-        this.setState({elapsed: parseInt(result_message)})
+        this._initTimer = null
+    }
 
-        // update status of the current question (answer was correct or wrong)
-        updateQuestion_status({tapped: true, answer: title, answered: true, isCorrect: answer_result == "correct"})
+    nextQuestion() {
+        const currentQuestionIndex = this.state.currentQuestionIndex + 1
+        this.setState({currentQuestionIndex})
+    }
 
-        // if answer was correct, load the next question
-        if (answer_result == "correct") {
+    componentWillMount() {
+        this._initTimer = window.setTimeout(() => {
+            this.setState({currentState: 'question'})
+        }, (playCountdownFrom + 1) * 1000)
+    }
 
-            // preload image
-            if (currentQuestion.question_number + 2 == currentQuestion.total_questions) {
-                preloadImages(['/img/congrats.png'])
+    // if replace is true, the current level from the state will be replaced with a new one
+    // so the user stays on the same level, but the questions change
+    loadContestLevel(contestId: number, levelIndex: number, replace: boolean = false) {
+        return getContestQuiz(contestId, levelIndex).then(level => {
+            const newLevel = {...level, questions: R.map((it)=> {
+                return {...it, _status: {answered: false, isCorrect: null, answer: null, tapped: false}}
+            })(level.questions)}
+
+            // preload images
+            R.compose(
+                preloadImages,
+                R.map(({title})=> title),
+                R.flatten,
+                R.map(({options})=> options)
+            )(level.questions)
+
+            const currentLevels = replace ? R.filter((it)=> it.level != levelIndex)(this.state.levels) : this.state.levels
+
+            this.setState({levels: R.append(newLevel, currentLevels)})
+        })
+    }
+
+    componentDidMount() {
+        getContestList(cookie.load('access_token')).then(contestList => {
+            this.setState({
+                contest: R.find(contestItem => contestItem.contest_id == this.state.contestId, contestList)
+            })
+        })
+
+        this.loadContestLevel(this.state.contestId, 1).then(()=> {
+            this.nextQuestion()
+        })
+    }
+
+    componentWillUnmount() {
+        window.clearTimeout(this._initTimer)
+    }
+
+    showPenalty() {
+        this.setState({showPenalty: true})
+        setTimeout(() => this.setState({showPenalty: false}), 1400)
+    }
+
+    nextLevel() {
+        this.setState({
+            timerState: 'restart'
+            , transitioning: false
+            , currentLevelIndex: this.state.currentLevelIndex + 1
+            , currentQuestionIndex: 0
+            , currentState: 'question'
+        })
+    }
+
+    onTimeout() {
+        console.log('timeout')
+
+        this.loadContestLevel(this.state.contestId, this.state.currentLevelIndex + 1, true)
+        .then(()=> {
+            this.setState({timerState: 'restart', currentQuestionIndex: 0})
+        })
+    }
+
+    answer(title : string) {
+
+        const currentLevel = this.state.levels[this.state.currentLevelIndex]
+
+        // update status of the current question tapped
+        let currentQuestion = currentLevel.questions[this.state.currentQuestionIndex]
+
+        const selectedOption = R.find((x)=> x.title == title)(currentQuestion.options)
+
+        // ignore the tap on previously selected wrong option
+        if (selectedOption._status && selectedOption._status.answered)
+            return false
+
+        const updateQuestion_status = status => {
+
+            const updatedQuestion = {
+                ...currentQuestion,
+                _status: {...currentQuestion._status, ...status},
+                options: R.map((option)=> {
+                    if (option.title == status.answer) {
+                        return {...option, _status: status}
+                    } else {
+                        return option
+                    }
+                })(currentQuestion.options)
             }
 
-            // code for sequencing UI effects
-            sfx.right.play()
-            //TODO: handle is_completed
-            wait(200, () => this.setState({transitioning: true}))
-            wait(1000, () =>
-              is_completed ? waitSeq(
-                  [200, 1000, 1200]
-                , [
-                    () => this.setState({transitioning: true})
-                  , () => this.setState({completed: true})
-                  , () => this.setState({transitioning: false})
-                ]
-              )
-            : this.setState({transitioning: false, currentQuestionIndex: this.state.currentQuestionIndex + 1})
-          )
+            let levels = this.state.levels
+            levels[this.state.currentLevelIndex].questions[this.state.currentQuestionIndex] = updatedQuestion
 
-        } else {
-            // add penalty seconds
-            sfx.wrong.play()
-            this.setState({penaltyMs: this.state.penaltyMs + 1000})
-            this.showPenalty()
-            vibrateDevice(500)
-            // resetting tapped and shake classes in Question.jsx options
-            // wait(1500, () => updateQuestion_status({tapped: false, answer: title, answered: false, isCorrect: null}))
+            this.setState({levels})
         }
 
-    })
-  }
+        updateQuestion_status({tapped: true, answer: title, answered: false, isCorrect: null})
 
-  render() {
+        answerQuiz(this.state.contestId, currentQuestion.question_id, this.state.currentLevelIndex + 1, title)
+        .then(({is_contest_complete, is_correct, is_level_complete, total_time_elapsed, level_time_elapsed, level_time_available})=> {
+            // this.onTimeout()
+            // return
+            // sync time with the server
+            this.setState({
+                elapsed: parseInt(level_time_elapsed)
+                , timerState: is_level_complete ? 'pause' : this.state.timerState
+            })
 
-    const nextTwoQuestions = R.pipe(
-        R.drop(this.state.currentQuestionIndex)
-      , R.take(2)
-    )(this.state.questions)
+            // update status of the current question (answer was correct or wrong)
+            updateQuestion_status({tapped: true, answer: title, answered: true, isCorrect: is_correct})
 
-    var questionElements;
-    if (this.state.currentQuestionIndex > -1) {
-      questionElements = nextTwoQuestions.map(currentQuestion => {
-        const {option_type, options, title, question_id, _status, question_number, total_questions} = currentQuestion
+            if (is_correct) {
 
-        return <Question
-            key={question_id}
-            optionType={option_type}
-            options={options}
-            title={title}
-            questionNumber={question_number}
-            totalQuestions={total_questions}
-            status={_status}
-            onAnswer={title => this.answer(title)} />
+                // preload image
+                if (this.state.currentQuestionIndex + 2 == currentLevel.total_questions && this.state.currentLevelIndex + 1 == currentLevel.total_levels) {
+                    preloadImages(['/img/congrats.png'])
+                }
+
+                // preload next level
+                if (is_level_complete && !is_contest_complete) {
+                    this.loadContestLevel(this.state.contestId, this.state.currentLevelIndex + 2)
+                }
+
+                // code for sequencing UI effects
+                sfx.right.play()
+                //TODO: handle is_completed
+                wait(200, () => this.setState({transitioning: true}))
+                wait(1000, () =>
+                  (is_contest_complete || is_level_complete) ? waitSeq(
+                      [200, 1000, 1200]
+                    , [
+                        () => this.setState({transitioning: true})
+                      , () => this.setState({currentState: (is_contest_complete ? 'congrats' : 'level_complete')})
+                      , () => this.setState({transitioning: false})
+                    ]
+                  )
+                : this.setState({transitioning: false, currentQuestionIndex: this.state.currentQuestionIndex + 1})
+              )
+
+            } else {
+                // add penalty seconds
+                sfx.wrong.play()
+                this.showPenalty()
+                vibrateDevice(500)
+                // resetting tapped and shake classes in Question.jsx options
+                // wait(1500, () => updateQuestion_status({tapped: false, answer: title, answered: false, isCorrect: null}))
+            }
+
         })
-    } else {
-      questionElements = null
     }
 
+    render() {
+        const currentLevel = this.state.levels[this.state.currentLevelIndex]
 
+        var questionElements;
+        if (this.state.currentQuestionIndex > -1 && currentLevel) {
 
-    const progress = this.state.completed ? 100 : nextTwoQuestions.length == 0 ? 0 : calculateProgress(nextTwoQuestions[0].question_number, nextTwoQuestions[0].total_questions)
+            const {option_type, options, title, question_id, _status} = currentLevel.questions[this.state.currentQuestionIndex]
 
-    return <div className={"play-route" + (this.state.showTimer ? ' show-timer' : '') + (this.state.transitioning ? ' transitioning' : '') + (this.state.showPenalty ? ' show-penalty' : '')}>
-      <div className={'penalty ' + (this.state.showPenalty ? 'in' : '')}>
-        <Penalty />
-      </div>
-      <ContestInfo
-          key={this.state.contestId}
-          contestItem={this.state.contest}
-          startTime={this.state.startTime}
-          penaltyMs={this.state.penaltyMs}
-          completed={this.state.completed}
-          elapsed={this.state.elapsed}
-      />
-      <div className='play-route-content'>
-        <div className='blocker' onMouseDown={ () => sfx.error.play() } /> {/* used to disable interaction during the shake, penalty animation*/}
-        <div className="level-info">Level 1</div>
-        <ProgressBar progress={progress} />
-        {this.state.showTimer ? <PlayCountdown from={playCountdownFrom} /> : ''}
-        {this.state.completed ? <Congrats /> : <div className='questions'>{questionElements}</div>}
-      </div>
-    </div>
-  }
+            questionElements = <Question
+                key={question_id}
+                optionType={option_type}
+                options={options}
+                title={title}
+                status={_status}
+                onAnswer={title => this.answer(title)} />
+        } else {
+            questionElements = null
+        }
+
+        // const progress = this.state.completed ? 100 : !this.state.currentLevelIndex ? 0 : calculateProgress(this.state.currentQuestionIndex, currentLevel.total_questions)
+        const progressLevel = !!currentLevel ? calculateProgress((this.state.currentState == 'congrats' ? this.state.currentLevelIndex + 1 : this.state.currentLevelIndex), currentLevel.total_levels) : 0
+
+        let currentStateElement = null
+        switch (this.state.currentState) {
+            case 'countdown':
+                currentStateElement = <PlayCountdown from={playCountdownFrom} />
+                break;
+            case 'question':
+                currentStateElement = <div className='questions'>{questionElements}</div>
+                break;
+            case 'level_complete':
+                currentStateElement = <LevelComplete level={this.state.currentLevelIndex + 1} totalLevels={currentLevel.total_levels} onClick={()=> this.nextLevel()}/>
+                break;
+            case 'congrats':
+                currentStateElement = <Congrats />
+                break;
+        }
+
+        return (
+            <div className={"play-route" + (this.state.currentState == 'countdown' ? ' show-timer' : '') + (this.state.transitioning ? ' transitioning' : '') + (this.state.showPenalty ? ' show-penalty' : '')}>
+                <div className={'penalty ' + (this.state.showPenalty ? 'in' : '')}>
+                    <Penalty />
+                </div>
+                <ContestInfo
+                    key={this.state.contestId}
+                    contestItem={this.state.contest}
+                    timerState={this.state.timerState}
+                    elapsed={this.state.elapsed}
+                    availableTime={currentLevel ? currentLevel.level_time_available : null}
+                    onTimeout={()=> this.onTimeout()}
+                />
+                <div className='play-route-content'>
+                    <div className='blocker' onMouseDown={ () => sfx.error.play() } /> {/* used to disable interaction during the shake, penalty animation*/}
+                    {(this.state.currentState != 'level_complete') && (
+                        <div>
+                            <div className="level-info">Level {this.state.currentLevelIndex + 1}</div>
+                            <ProgressBar progress={progressLevel} />
+                        </div>
+                    )}
+
+                    {currentStateElement}
+                </div>
+            </div>
+        )
+    }
 }

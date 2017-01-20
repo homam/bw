@@ -75,21 +75,23 @@
           font-weight bold
           padding-top 15px
 
-    .question-component:last-child
-      position: fixed;
-      left: -1000px;
+    // .question-component:last-child
+    //   position: fixed;
+    //   left: -2000px;
 
     .question-component:first-child
       position: relative !important;
       left: 0 !important;
 
     .question-component,
-    .congrats-component
+    .congrats-component,
+    .level-complete-component
       transition: opacity 0.7s
 
     &.transitioning
       .question-component,
-      .congrats-component
+      .congrats-component,
+      .level-complete-component
         opacity: 0
         transition: opacity 0.7s
 
