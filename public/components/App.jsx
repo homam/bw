@@ -9,6 +9,7 @@ const Header = require('./Header.jsx')
 import HomeRoute from './HomeRoute.jsx'
 import PlayRoute from './PlayRoute.jsx'
 import ProfileRoute from './ProfileRoute.jsx'
+import LeaderboardRoute from './LeaderboardRoute.jsx'
 const Menu = require('./Menu.jsx')
 const cookie = require('react-cookie')
 
@@ -104,6 +105,7 @@ class App extends React.Component {
                     />
                     <MatchWithFade label="play" pattern="/contest/:contestId/play" exactly component={PlayRoute} />
                     <MatchWithFade label="profile" pattern="/profile" exactly component={ProfileRoute} />
+                    <MatchWithFade label="leaderboard" pattern="/leaderboard/:contestId" exactly component={LeaderboardRoute} />
                 </div>
             </div>
         )

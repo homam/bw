@@ -1,10 +1,10 @@
 // @flow
 const React = require('react')
 const R = require('ramda')
+import type {LeaderboardItem} from "../../types.js"
 
-type LeaderboardItemType = {rank: number, name: string, time: number, me: ?bool}
-type LeaderboardItemProp = {item : LeaderboardItemType }
-type LeaderboardProp = {board: [LeaderboardItemType] }
+type LeaderboardItemProp = {item : LeaderboardItem }
+type LeaderboardProp = {board: [LeaderboardItem] }
 
 const pad = (v, p) => {
   const t = v.toString()
@@ -19,16 +19,16 @@ const formatTime = t => {
   return `${pad(m, 2)}:${pad(s, 2)}.${pad(ms, 3)}`
 }
 
-const LeaderboardItem = ({item: {rank, name, time, me}} : LeaderboardItemProp) => {
-  return <div className={'leader-board-item' + (!!me ? ' me': '')}>
-     <span className='rank'>{rank}</span>
-     <span className='name'>{name}</span>
-     <span className='time'>{formatTime(time)}</span>
+const LeaderboardItemElem = ({item: {full_name, score, position, current_user}} : LeaderboardItemProp) => {
+  return <div className={'leader-board-item' + (!!current_user ? ' me': '')}>
+     <span className='rank'>{position}</span>
+     <span className='name'>{R.trim(full_name)}</span>
+     <span className='time'>{formatTime(score)}</span>
   </div>
 }
 
 module.exports = ({board} : LeaderboardProp) => {
   return <div className='leader-board'>{R.zip(R.range(0, board.length - 1), board).map(([i, bi]) => {
-    return <LeaderboardItem item={bi} key={i} />
+    return <LeaderboardItemElem item={bi} key={i} />
   })}</div>
 }

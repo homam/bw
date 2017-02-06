@@ -1,24 +1,20 @@
 const React = require('react')
 const Leaderboard = require('./Leaderboard.jsx')
+const Loading = require('./Loading.jsx')
+import type {LeaderboardType} from "../../types.js";
 
-//TODO: test data
-const data = [{rank: 17, name: 'Johnny', time: 4123}, {rank: 18, name: 'Homam', time: 25812, me: true},{rank: 19, name: 'Edgar', time: 26001}, {rank: 20, name: 'Tom', time: 28633}]
+module.exports = (props:{leaderboard: ?LeaderboardType})=> {
 
-module.exports = React.createClass({
+    return (
+        <div className="congrats-component">
 
-    displayName: 'congrats-component'
+            <div className="column">
+              <img src="/img/congrats.png" style={{width: '271px', height: '126px'}} />
+            </div>
+            <div style={{padding: '0 10% 0 10%'}}>
+                {!!props.leaderboard ? <Leaderboard board={props.leaderboard.leaderboard} /> : <Loading />}
+            </div>
 
-    , render() {
-        return (
-            <div className="congrats-component">
-
-                <div className="column">
-                  <img src="/img/congrats.png" style={{width: '271px', height: '126px'}} />
-                </div>
-                <div style={{padding: '0 10% 0 10%'}}>
-                    <Leaderboard board={data} />
-                </div>
-
-            </div>)
-    }
-})
+        </div>
+    )
+}

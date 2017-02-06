@@ -2,8 +2,8 @@
 
 const axios = require('axios')
 const R = require('ramda')
-const {contestApi, quizApi, answerApi, registrationApi, pinVerificationApi, subscriptionApi, profileApi} = require('../config')
-import type {QuizPayload, AnswerPayload, PinPayload, ContestItem, QuestionItem, OptionItem, Answer, RegistrationPayload, SubscriptionPayload, Profile, LevelItem} from "../../types.js"
+const {contestApi, quizApi, answerApi, registrationApi, pinVerificationApi, subscriptionApi, profileApi, leaderboardApi} = require('../config')
+import type {QuizPayload, AnswerPayload, PinPayload, ContestItem, QuestionItem, OptionItem, Answer, RegistrationPayload, SubscriptionPayload, Profile, LevelItem, LeaderboardType} from "../../types.js"
 const {pMemoize} = require('./utils')
 const cookie = require('react-cookie')
 
@@ -224,6 +224,33 @@ const updateProfile = (url: string, authKey: string, first_name: string)=> {
 }
 
 
+const getLeadreboard = (url: string, authKey: string, contestId: number, all: boolean): Promise<LeaderboardType>=> {
+
+    const payload = {
+        contest_id: contestId,
+        all: (all ? 1 : 0),
+        limit: 20,
+        offset: 0
+    }
+
+    const hash = R.compose(calculateHash, constructPayloadString)(payload)
+
+    return new Promise((resolve, reject)=> {
+        apiRequest(url, authKey, hash, payload)
+        .then(({data})=> {
+            const {contest, leaderboard} = R.prop('data', data)
+            resolve({
+                contest
+                , leaderboard: leaderboard
+            })
+        })
+        .catch(({response})=> {
+            return reject(response.data)
+        })
+    })
+}
+
+
 const callApi = (f)=> f(getAccessToken())
 
 
@@ -235,3 +262,4 @@ module.exports.pinVerification = (...args)=> callApi(R.curry(pinVerification)(pi
 module.exports.subscription = (...args)=> callApi(R.curry(subscription)(subscriptionApi))(...args)
 module.exports.getProfile = ()=> callApi(R.curry(getProfile)(profileApi))
 module.exports.updateProfile = (...args)=> callApi(R.curry(updateProfile)(profileApi))(...args)
+module.exports.getLeadreboard = (...args)=> callApi(R.curry(getLeadreboard)(leaderboardApi))(...args)

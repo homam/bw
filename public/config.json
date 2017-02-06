@@ -7,5 +7,6 @@
     "pinVerificationApi": "/api/user/contest/subscribe/verify",
     "subscriptionApi": "/api/user/contest/subscribe",
     "imagePath": "http://sg-stage.prizefrenzy.com/api/games/",
-    "profileApi": "/api/user/user/profile"
+    "profileApi": "/api/user/user/profile",
+    "leaderboardApi": "/api/games/contest/leaderboard"
 }

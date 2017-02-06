@@ -4,9 +4,9 @@ const React = require('react')
 const R = require('ramda')
 const moment = require('moment')
 const cookie = require('react-cookie')
-const {getContestQuiz, answerQuiz, getContestList} = require('../modules/apis')
+const {getContestQuiz, answerQuiz, getContestList, getLeadreboard} = require('../modules/apis')
 const {waitPromise, wait, waitSeq} = require('../modules/async')
-import type {QuestionItem, LevelItem, TimerState, ContestItem} from "../../types.js";
+import type {QuestionItem, LevelItem, TimerState, ContestItem, LeaderboardType} from "../../types.js"
 
 const ContestInfo = require('./ContestInfo.jsx')
 const Question = require('./Question.jsx')
@@ -42,6 +42,7 @@ export default class PlayRouteContainer extends React.Component {
         , elapsed: number
         , timerState: TimerState
         , currentState: 'countdown' | 'question' | 'level_complete' | 'congrats'
+        , leaderboard: ?LeaderboardType
     }
 
     _initTimer: ?number
@@ -59,6 +60,7 @@ export default class PlayRouteContainer extends React.Component {
             , elapsed: 0
             , timerState: (null: TimerState)
             , currentState: 'countdown'
+            , leaderboard: (null : ?LeaderboardType)
         };
 
         this._initTimer = null
@@ -71,7 +73,7 @@ export default class PlayRouteContainer extends React.Component {
 
     componentWillMount() {
         this._initTimer = window.setTimeout(() => {
-            this.setState({currentState: 'question'})
+            // this.setState({currentState: 'question'})
         }, (playCountdownFrom + 1) * 1000)
     }
 
@@ -106,6 +108,10 @@ export default class PlayRouteContainer extends React.Component {
 
         this.loadContestLevel(this.state.contestId, 1).then(()=> {
             this.nextQuestion()
+        })
+
+        getLeadreboard(this.state.contestId, false).then((leaderboard: LeaderboardType)=> {
+            this.setState({leaderboard})
         })
     }
 
@@ -259,7 +265,7 @@ export default class PlayRouteContainer extends React.Component {
                 currentStateElement = <LevelComplete level={this.state.currentLevelIndex + 1} totalLevels={currentLevel.total_levels} onClick={()=> this.nextLevel()}/>
                 break;
             case 'congrats':
-                currentStateElement = <Congrats />
+                currentStateElement = <Congrats leaderboard={this.state.leaderboard}/>
                 break;
         }
 

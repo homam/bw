@@ -44,7 +44,7 @@ module.exports = (props:{contestItem: ContestItem, loading: boolean, onClick: (c
                         <p className="time-value">{time.format('mm: ss: SS')}</p>
                     </div>
                     <div className="small-6 columns">
-                        <p className="leaderboard-title">LEADERBOARD &gt;</p>
+                        <Link to={`leaderboard/${contest_id}`} className="leaderboard-title">LEADERBOARD &gt;</Link>
                     </div>
                 </div>
             </div>

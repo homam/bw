@@ -35,10 +35,11 @@ export type PinPayload = {
 export type ContestItem = {
     contest_id: number
     , name: string
-    , best_time: number | null
+    , game_id: number
+    , best_score: ?number
     , contest_image: string
     , time_remaining: number
-    , unlocked: number
+    , unlocked: boolean
 }
 
 export type OptionItem = {
@@ -84,3 +85,15 @@ export type Profile = {
 }
 
 export type TimerState = 'pause' | 'start' | 'restart' | null
+
+export type LeaderboardItem = {
+    full_name: string
+    , score: number
+    , position: number
+    , current_user: boolean
+}
+
+export type LeaderboardType = {
+    // contest: ContestItem
+    leaderboard: Array<LeaderboardItem>
+}
