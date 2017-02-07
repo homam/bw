@@ -119,11 +119,30 @@ const answerQuiz = (url: string, authKey: string, contestId: number, questionId:
 }
 
 
-const registration = (url: string, authKey: string, msisdn: string, contestId: number, publisherId: string)=> {
+const registration = (url: string, authKey: string, msisdn: string)=> {
 
     const payload = {
         msisdn: msisdn
-        , contest_id: contestId
+    }
+
+    const hash = R.compose(calculateHash, constructPayloadString)(payload)
+
+    return new Promise((resolve, reject)=> {
+        apiRequest(url, authKey, hash, payload)
+        .then(({data})=>
+            resolve(R.prop('data')(data))
+        )
+        .catch(({response})=> {
+            return reject(response.data)
+        })
+    })
+}
+
+
+const subscription = (url: string, authKey: string, gameId: number, publisherId: string)=> {
+
+    const payload = {
+        game_id: gameId
         , publisherid: publisherId
     }
 
@@ -141,32 +160,11 @@ const registration = (url: string, authKey: string, msisdn: string, contestId: n
 }
 
 
-const subscription = (url: string, authKey: string, contestId: number, publisherId: string)=> {
-
-    const payload = {
-        contest_id: contestId
-        , publisherid: publisherId
-    }
-
-    const hash = R.compose(calculateHash, constructPayloadString)(payload)
-
-    return new Promise((resolve, reject)=> {
-        apiRequest(url, authKey, hash, payload)
-        .then(({data})=>
-            resolve(R.prop('data')(data))
-        )
-        .catch(({response})=> {
-            return reject(response.data)
-        })
-    })
-}
-
-
-const pinVerification = (url: string, authKey: string, msisdn: string, contestId: number, pincode: number)=> {
+const pinVerification = (url: string, authKey: string, msisdn: string, gameId: number, pincode: number)=> {
 
     const payload = {
         msisdn: msisdn
-        , contest_id: contestId
+        , game_id: gameId
         , pincode: pincode
     }
 

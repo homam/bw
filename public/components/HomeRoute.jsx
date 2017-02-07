@@ -22,10 +22,9 @@ class HomeRoute extends React.Component {
     state: {
         contestList: Array<ContestItem>
         , authStage: ?AuthStage
-        , selectedContestId: ?number
+        , selectedGameId: ?number
         , showLoading: boolean
         , authError: ?string
-        , formMsisdn: ?string
     }
 
     props: {
@@ -40,10 +39,9 @@ class HomeRoute extends React.Component {
         this.state = {
             contestList: ([]: Array<ContestItem>)
             , authStage: (null: ?AuthStage)
-            , selectedContestId: (null: ?number)
+            , selectedGameId: (null: ?number)
             , showLoading: false
             , authError: (null: ?string)
-            , formMsisdn: (null: ?string)
         }
     }
 
@@ -52,19 +50,19 @@ class HomeRoute extends React.Component {
         const ContestThumbList = R.map((contestItem)=>
             <ContestThumb
                 key={contestItem.contest_id}
-                loading={(this.state.selectedContestId == contestItem.contest_id && this.state.showLoading)}
+                loading={(this.state.selectedGameId == contestItem.game_id && this.state.showLoading)}
                 contestItem={contestItem}
-                onClick={({contest_id, unlocked})=> {
+                onClick={({game_id, unlocked})=> {
                     if (!!unlocked) {
-                        return history.push(`/contest/${contest_id}/play`)
+                        return history.push(`/contest/${game_id}/play`)
                     } else {
 
                         if (this.props.authenticationLevel == 'anonymous') {
-                            this.setState({selectedContestId: contest_id, authStage: 'msisdn-entry'})
+                            this.setState({selectedGameId: game_id, authStage: 'msisdn-entry'})
                         } else {
-                            this.setState({selectedContestId: contest_id, showLoading: true})
+                            this.setState({selectedGameId: game_id, showLoading: true})
 
-                            subscription(contest_id, "BigwinApp")
+                            subscription(game_id, "BigwinApp")
                             .then((d)=> {
                                 this.setState({authStage: 'pin-entry', showLoading: false})
                             })
@@ -81,15 +79,33 @@ class HomeRoute extends React.Component {
             <div className="home-route">
                 <div className={(this.state.authStage == 'msisdn-entry') ? 'transition' : 'transition hide'}>
                     {this.state.authStage == 'msisdn-entry' && <NumberEntry
-                        contestItem={R.find((x)=> x.contest_id == this.state.selectedContestId)(this.state.contestList)}
+                        contestItem={R.find((x)=> x.game_id == this.state.selectedGameId)(this.state.contestList)}
                         loading={this.state.showLoading}
                         error={this.state.authError}
                         onSubmit={(msisdn)=> {
                             this.setState({showLoading: true})
 
-                            registration(msisdn, this.state.selectedContestId, "BigwinApp")
+                            const subscribeUser = R.composeP(
+                                (({access_token, token_type, expires_in})=> {
+
+                                    this.setState({
+                                        msisdn: msisdn,
+                                        accessToken: access_token,
+                                        authenticationLevel: 'user'
+                                    })
+
+                                    cookie.save('msisdn', msisdn, {maxAge: new Date(expires_in)})
+                                    cookie.save('access_token', access_token, {maxAge: new Date(expires_in)})
+                                    cookie.save('authentication_level', 'user', {maxAge: new Date(expires_in)})
+
+                                    return subscription(this.state.selectedGameId, "BigwinApp")
+                                }),
+                                registration
+                            )
+
+                            subscribeUser(msisdn)
                             .then((d)=> {
-                                this.setState({formMsisdn: msisdn, authStage: 'pin-entry', showLoading: false})
+                                this.setState({authStage: 'pin-entry', showLoading: false})
                             })
                             .catch(({message})=> {
                                 this.setState({showLoading: false, authError: message})
@@ -100,23 +116,14 @@ class HomeRoute extends React.Component {
 
                 <div className={(this.state.authStage == 'pin-entry') ? 'transition' : 'transition hide'}>
                     {this.state.authStage == 'pin-entry' && <PinEntry
-                        contestItem={R.find((x)=> x.contest_id == this.state.selectedContestId)(this.state.contestList)}
+                        contestItem={R.find((x)=> x.game_id == this.state.selectedGameId)(this.state.contestList)}
                         loading={this.state.showLoading}
                         error={this.state.authError}
                         onSubmit={(pincode)=> {
                             this.setState({showLoading: true})
 
-                            pinVerification(this.state.formMsisdn || this.props.msisdn, this.state.selectedContestId, parseInt(pincode))
+                            pinVerification(this.state.msisdn, this.state.selectedGameId, parseInt(pincode))
                             .then(({access_token, expires_in})=> {
-
-                                if (this.props.authenticationLevel == 'anonymous') {
-                                    this.props.onChange({msisdn: this.state.formMsisdn, accessToken: access_token, authenticationLevel: 'user'})
-
-                                    cookie.save('msisdn', this.state.formMsisdn, {maxAge: new Date(expires_in)})
-                                    cookie.save('access_token', access_token, {maxAge: new Date(expires_in)})
-                                    cookie.save('authentication_level', 'user', {maxAge: new Date(expires_in)})
-                                }
-
                                 // clean the cache of the memoized function to load the new list of contests
                                 getContestList.cleanCache()
 
@@ -131,10 +138,10 @@ class HomeRoute extends React.Component {
 
                 <div className={(this.state.authStage == 'congrats') ? 'transition' : 'transition hide'}>
                     {this.state.authStage == 'congrats' && <RegisterCongrats
-                        contestItem={R.find((x)=> x.contest_id == this.state.selectedContestId)(this.state.contestList)}
+                        contestItem={R.find((x)=> x.contest_id == this.state.selectedGameId)(this.state.contestList)}
                         onClick={()=> {
-                            if (this.state.selectedContestId)
-                                return history.push(`/contest/${this.state.selectedContestId}/play`)
+                            if (this.state.selectedGameId)
+                                return history.push(`/contest/${this.state.selectedGameId}/play`)
                         }}
                     />}
                 </div>
