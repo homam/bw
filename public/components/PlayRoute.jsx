@@ -16,6 +16,7 @@ const Congrats = require('./Congrats.jsx')
 const ProgressBar = require('./ProgressBar.jsx')
 const BulletBar = require('./BulletBar.jsx')
 const LevelComplete = require('./LevelComplete.jsx')
+const LevelTimeout = require('./LevelTimeout.jsx')
 const sfx = require('../modules/sfx')
 const {preloadImages} = require('../modules/utils')
 const playCountdownFrom = 4
@@ -41,8 +42,9 @@ export default class PlayRouteContainer extends React.Component {
         , currentQuestionIndex: number
         , elapsed: number
         , timerState: TimerState
-        , currentState: 'countdown' | 'question' | 'level_complete' | 'congrats'
+        , currentState: 'countdown' | 'question' | 'level_timeout' | 'level_complete' | 'congrats'
         , leaderboard: ?LeaderboardType
+        , showLoading: boolean
     }
 
     _initTimer: ?number
@@ -61,6 +63,7 @@ export default class PlayRouteContainer extends React.Component {
             , timerState: (null: TimerState)
             , currentState: 'countdown'
             , leaderboard: (null : ?LeaderboardType)
+            , showLoading: false
         };
 
         this._initTimer = null
@@ -73,7 +76,7 @@ export default class PlayRouteContainer extends React.Component {
 
     componentWillMount() {
         this._initTimer = window.setTimeout(() => {
-            // this.setState({currentState: 'question'})
+            this.setState({currentState: 'question'})
         }, (playCountdownFrom + 1) * 1000)
     }
 
@@ -109,10 +112,6 @@ export default class PlayRouteContainer extends React.Component {
         this.loadContestLevel(this.state.contestId, 1).then(()=> {
             this.nextQuestion()
         })
-
-        getLeadreboard(this.state.contestId, false).then((leaderboard: LeaderboardType)=> {
-            this.setState({leaderboard})
-        })
     }
 
     componentWillUnmount() {
@@ -125,22 +124,40 @@ export default class PlayRouteContainer extends React.Component {
     }
 
     nextLevel() {
-        this.setState({
-            timerState: 'restart'
-            , transitioning: false
-            , currentLevelIndex: this.state.currentLevelIndex + 1
-            , currentQuestionIndex: 0
-            , currentState: 'question'
+        this.setState({showLoading: true})
+        this.loadContestLevel(this.state.contestId, this.state.currentLevelIndex + 2)
+        .then(()=> {
+            this.setState({
+                timerState: 'restart'
+                , transitioning: false
+                , currentLevelIndex: this.state.currentLevelIndex + 1
+                , currentQuestionIndex: 0
+                , currentState: 'question'
+            })
+        })
+    }
+
+    retryLevel() {
+        this.setState({showLoading: true})
+        // don't preload the quiz, load only when user clicks the retry button, since
+        // the time counting startes when the api is requested
+        // if quiz preloaded, the counting will start even though user is still in the timeout page
+        this.loadContestLevel(this.state.contestId, this.state.currentLevelIndex + 1, true)
+        .then(()=> {
+            this.setState({
+                timerState: 'restart'
+                , transitioning: false
+                , currentLevelIndex: this.state.currentLevelIndex
+                , currentQuestionIndex: 0
+                , currentState: 'question'
+                , showLoading: false
+            })
         })
     }
 
     onTimeout() {
-        console.log('timeout')
-
-        this.loadContestLevel(this.state.contestId, this.state.currentLevelIndex + 1, true)
-        .then(()=> {
-            this.setState({timerState: 'restart', currentQuestionIndex: 0})
-        })
+        this.setState({currentState: 'level_timeout', timerState: 'pause'})
+        // this.loadContestLevel(this.state.contestId, this.state.currentLevelIndex + 1, true)
     }
 
     answer(title : string) {
@@ -199,8 +216,16 @@ export default class PlayRouteContainer extends React.Component {
                 }
 
                 // preload next level
-                if (is_level_complete && !is_contest_complete) {
-                    this.loadContestLevel(this.state.contestId, this.state.currentLevelIndex + 2)
+                // don't preload the quiz, since the time counting starts when the api is called
+                // load the quiz when play button is clicked
+                // if (is_level_complete && !is_contest_complete) {
+                //     this.loadContestLevel(this.state.contestId, this.state.currentLevelIndex + 2)
+                // }
+
+                if (is_contest_complete) {
+                    getLeadreboard(this.state.contestId, false).then((leaderboard: LeaderboardType)=> {
+                        this.setState({leaderboard})
+                    })
                 }
 
                 // code for sequencing UI effects
@@ -262,13 +287,16 @@ export default class PlayRouteContainer extends React.Component {
                 currentStateElement = <div className='questions'>{questionElements}</div>
                 break;
             case 'level_complete':
-                currentStateElement = <LevelComplete level={this.state.currentLevelIndex + 1} totalLevels={currentLevel.total_levels} onClick={()=> this.nextLevel()}/>
+                currentStateElement = <LevelComplete level={this.state.currentLevelIndex + 1} totalLevels={currentLevel.total_levels} onClick={()=> this.nextLevel()} loading={this.state.showLoading}/>
+                break;
+            case 'level_timeout':
+                currentStateElement = <LevelTimeout level={this.state.currentLevelIndex + 1} onClick={()=> this.retryLevel()} loading={this.state.showLoading} />
                 break;
             case 'congrats':
                 currentStateElement = <Congrats leaderboard={this.state.leaderboard}/>
                 break;
         }
-
+        console.log(currentLevel)
         return (
             <div className={"play-route" + (this.state.currentState == 'countdown' ? ' show-timer' : '') + (this.state.transitioning ? ' transitioning' : '') + (this.state.showPenalty ? ' show-penalty' : '')}>
                 <div className={'penalty ' + (this.state.showPenalty ? 'in' : '')}>
@@ -284,7 +312,7 @@ export default class PlayRouteContainer extends React.Component {
                 />
                 <div className='play-route-content'>
                     <div className='blocker' onMouseDown={ () => sfx.error.play() } /> {/* used to disable interaction during the shake, penalty animation*/}
-                    {(this.state.currentState != 'level_complete') && (
+                    {(this.state.currentState != 'level_complete' && this.state.currentState != 'level_timeout') && (
                         <div>
                             <div className="level-info">Level {this.state.currentLevelIndex + 1}</div>
                             <ProgressBar progress={progressLevel} />

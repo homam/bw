@@ -10,8 +10,8 @@ const Loading = require('./Loading.jsx')
 module.exports = (props:{contestItem: ContestItem, loading: boolean, onClick: (contestItem: contestItem) => any})=> {
 
     const {contestItem, onClick, loading} = props
-    const {contest_id, name, best_time, contest_image, time_remaining, unlocked} = contestItem
-    const time = moment(best_time || 0)
+    const {contest_id, name, best_score, contest_image, time_remaining, unlocked} = contestItem
+    const time = moment(best_score || 0)
 
     const daysLeft = moment(time_remaining * 1000).diff((new Date()), 'days')
 
