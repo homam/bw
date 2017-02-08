@@ -88,7 +88,7 @@ class HomeRoute extends React.Component {
                             const subscribeUser = R.composeP(
                                 (({access_token, token_type, expires_in})=> {
 
-                                    this.setState({
+                                    this.props.onChange({
                                         msisdn: msisdn,
                                         accessToken: access_token,
                                         authenticationLevel: 'user'
@@ -122,7 +122,7 @@ class HomeRoute extends React.Component {
                         onSubmit={(pincode)=> {
                             this.setState({showLoading: true})
 
-                            pinVerification(this.state.msisdn, this.state.selectedGameId, parseInt(pincode))
+                            pinVerification(this.props.msisdn, this.state.selectedGameId, parseInt(pincode))
                             .then(({access_token, expires_in})=> {
                                 // clean the cache of the memoized function to load the new list of contests
                                 getContestList.cleanCache()
