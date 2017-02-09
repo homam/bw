@@ -43,7 +43,7 @@ export default class LeaderboardRoute extends React.Component {
                                 </div>
                             </div>
                         </div>
-                        <Leaderboard board={this.state.leaderboard.leaderboard} />
+                        {!!this.state.leaderboard && <Leaderboard board={this.state.leaderboard.leaderboard} />}
                     </div>}
                 </div>
 

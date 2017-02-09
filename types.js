@@ -91,9 +91,10 @@ export type LeaderboardItem = {
     , score: number
     , position: number
     , current_user: boolean
+    , highlight: boolean
 }
 
 export type LeaderboardType = {
-    // contest: ContestItem
-    leaderboard: Array<LeaderboardItem>
+    contest: ContestItem
+    , leaderboard: Array<LeaderboardItem>
 }
