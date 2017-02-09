@@ -18,7 +18,7 @@ const BulletBar = require('./BulletBar.jsx')
 const LevelComplete = require('./LevelComplete.jsx')
 const LevelTimeout = require('./LevelTimeout.jsx')
 const sfx = require('../modules/sfx')
-const {preloadImages} = require('../modules/utils')
+const {preloadImages, preloadImagesP} = require('../modules/utils')
 const playCountdownFrom = 4
 
 
@@ -80,25 +80,46 @@ export default class PlayRouteContainer extends React.Component {
         }, (playCountdownFrom + 1) * 1000)
     }
 
+    extractOptionImages(questions: Array<QuestionItem>) {
+        return R.compose(
+            R.map(({title})=> title),
+            R.flatten,
+            R.map(({options})=> options)
+        )(questions)
+    }
+
     // if replace is true, the current level from the state will be replaced with a new one
     // so the user stays on the same level, but the questions change
     loadContestLevel(contestId: number, levelIndex: number, replace: boolean = false) {
-        return getContestQuiz(contestId, levelIndex).then(level => {
-            const newLevel = {...level, questions: R.map((it)=> {
-                return {...it, _status: {answered: false, isCorrect: null, answer: null, tapped: false}}
-            })(level.questions)}
+        return new Promise((resolve, reject)=> {
+            getContestQuiz(contestId, levelIndex).then(level => {
+                const newLevel = {...level, questions: R.map((it)=> {
+                    return {...it, _status: {answered: false, isCorrect: null, answer: null, tapped: false}}
+                })(level.questions)}
 
-            // preload images
-            R.compose(
-                preloadImages,
-                R.map(({title})=> title),
-                R.flatten,
-                R.map(({options})=> options)
-            )(level.questions)
+                // divided into 2 sets so can preload the first question images before preloading the rest
+                const initialQuestion = R.head(level.questions)
+                const restQuestion = R.tail(level.questions)
 
-            const currentLevels = replace ? R.filter((it)=> it.level != levelIndex)(this.state.levels) : this.state.levels
+                // preload only the images of the first question
+                R.compose(
+                    preloadImagesP,
+                    this.extractOptionImages
+                )([initialQuestion])
+                // use "finally" instead of "then" so if any image fails to load, we still render the rest
+                .finally(()=> {
+                    // images are preloaded, render the state
+                    const currentLevels = replace ? R.filter((it)=> it.level != levelIndex)(this.state.levels) : this.state.levels
+                    this.setState({levels: R.append(newLevel, currentLevels)})
+                    resolve()
 
-            this.setState({levels: R.append(newLevel, currentLevels)})
+                    // preload rest of the question images in background
+                    R.compose(
+                        preloadImages,
+                        this.extractOptionImages
+                    )(restQuestion)
+                })
+            })
         })
     }
 
@@ -133,6 +154,7 @@ export default class PlayRouteContainer extends React.Component {
                 , currentLevelIndex: this.state.currentLevelIndex + 1
                 , currentQuestionIndex: 0
                 , currentState: 'question'
+                , showLoading: false
             })
         })
     }
@@ -296,7 +318,7 @@ export default class PlayRouteContainer extends React.Component {
                 currentStateElement = <Congrats leaderboard={this.state.leaderboard}/>
                 break;
         }
-        console.log(currentLevel)
+
         return (
             <div className={"play-route" + (this.state.currentState == 'countdown' ? ' show-timer' : '') + (this.state.transitioning ? ' transitioning' : '') + (this.state.showPenalty ? ' show-penalty' : '')}>
                 <div className={'penalty ' + (this.state.showPenalty ? 'in' : '')}>
