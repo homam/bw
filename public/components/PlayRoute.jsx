@@ -40,7 +40,7 @@ export default class PlayRouteContainer extends React.Component {
         , levels: Array<LevelItem>
         , currentLevelIndex: number
         , currentQuestionIndex: number
-        , elapsed: number
+        , levelTimeAvailable: ?number
         , timerState: TimerState
         , currentState: 'countdown' | 'question' | 'level_timeout' | 'level_complete' | 'congrats'
         , leaderboard: ?LeaderboardType
@@ -59,7 +59,7 @@ export default class PlayRouteContainer extends React.Component {
             , levels: ([] : LevelItem[])
             , currentLevelIndex: 0
             , currentQuestionIndex: (-1 : number)
-            , elapsed: 0
+            , levelTimeAvailable: (null: ?number)
             , timerState: (null: TimerState)
             , currentState: 'countdown'
             , leaderboard: (null : ?LeaderboardType)
@@ -110,7 +110,7 @@ export default class PlayRouteContainer extends React.Component {
                 .finally(()=> {
                     // images are preloaded, render the state
                     const currentLevels = replace ? R.filter((it)=> it.level != levelIndex)(this.state.levels) : this.state.levels
-                    this.setState({levels: R.append(newLevel, currentLevels)})
+                    this.setState({levels: R.append(newLevel, currentLevels), levelTimeAvailable: newLevel.level_time_available})
                     resolve()
 
                     // preload rest of the question images in background
@@ -223,7 +223,7 @@ export default class PlayRouteContainer extends React.Component {
             // return
             // sync time with the server
             this.setState({
-                elapsed: parseInt(level_time_elapsed)
+                levelTimeAvailable: level_time_available
                 , timerState: is_level_complete ? 'pause' : this.state.timerState
             })
 
@@ -328,8 +328,7 @@ export default class PlayRouteContainer extends React.Component {
                     key={this.state.contestId}
                     contestItem={this.state.contest}
                     timerState={this.state.timerState}
-                    elapsed={this.state.elapsed}
-                    availableTime={currentLevel ? currentLevel.level_time_available : null}
+                    availableTime={this.state.levelTimeAvailable}
                     onTimeout={()=> this.onTimeout()}
                 />
                 <div className='play-route-content'>

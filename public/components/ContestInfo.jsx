@@ -5,9 +5,9 @@ import type {ContestItem, TimerState} from "../../types.js"
 
 import Timer from './Timer.jsx'
 
-module.exports = (props:{contestItem: ?ContestItem, timerState: TimerState, elapsed: ?number, availableTime: ?number, onTimeout: ()=> any})=> {
+module.exports = (props:{contestItem: ?ContestItem, timerState: TimerState,availableTime: ?number, onTimeout: ()=> any})=> {
 
-    const {timerState, contestItem, elapsed, availableTime, onTimeout} = props
+    const {timerState, contestItem, availableTime, onTimeout} = props
 
     return (
         <div className="contest-info-component">
@@ -17,7 +17,7 @@ module.exports = (props:{contestItem: ?ContestItem, timerState: TimerState, elap
                   {!contestItem ? '' : contestItem.name}
               </div>
               <div className="row timer">
-                  <Timer state={timerState} elapsed={elapsed} availableTime={availableTime} onTimeout={onTimeout}/>
+                  <Timer state={timerState} availableTime={availableTime} onTimeout={onTimeout}/>
               </div>
           </div>
         </div>)

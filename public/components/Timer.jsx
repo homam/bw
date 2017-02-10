@@ -5,8 +5,7 @@ const moment = require('moment')
 import type {TimerState} from "../../types.js"
 
 type Props = {
-    elapsed: number
-    , availableTime: ?number
+    availableTime: ?number
     , state: TimerState
     , onTimeout: ()=> any
 }
@@ -38,28 +37,22 @@ export default class Timer extends React.Component {
         // when component renders, the availableTime is not known
         // start the tick() when its available
         if (!!this.props.availableTime && prevProps.availableTime != this.props.availableTime) {
-            window.clearTimeout(this.timer)
-            this.start()
-        }
-
-        // sync the elapsed time with the server
-        if (!!this.props.elapsed && prevProps.elapsed != this.props.elapsed) {
-            // window.clearTimeout(this.timer)
-            this.elapsed = this.props.elapsed
-            // this.start()
+            this.restart()
         }
 
         // manage the state of the timer
-        switch (this.props.state) {
-            case 'pause':
-                this.pause()
-                break;
-            case 'start':
-                this.start()
-                break;
-            case 'restart':
-                this.restart()
-                break;
+        if (this.props.state != prevProps.state) {
+            switch (this.props.state) {
+                case 'pause':
+                    this.pause()
+                    break;
+                case 'start':
+                    this.start()
+                    break;
+                case 'restart':
+                    this.restart()
+                    break;
+            }
         }
     }
 
@@ -72,6 +65,7 @@ export default class Timer extends React.Component {
     }
 
     start() {
+        window.clearTimeout(this.timer)
         this.tick()
     }
 
@@ -82,8 +76,8 @@ export default class Timer extends React.Component {
     }
 
     tick() {
-        this.elapsed = this.elapsed + 50
         const timeLeft = this.props.availableTime - this.elapsed
+        this.elapsed = this.elapsed + 50
 
         this.refs.timer.innerHTML = formatTime(timeLeft <= 0 ? 0 : timeLeft)
 
