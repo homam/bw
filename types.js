@@ -81,7 +81,7 @@ export type Answer = {
 
 export type Profile = {
     first_name: string
-    , telephone: number
+    , username: number
 }
 
 export type TimerState = 'pause' | 'start' | 'restart' | null

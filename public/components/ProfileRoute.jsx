@@ -2,6 +2,7 @@ const React = require('react')
 const {getProfile, updateProfile} = require('../modules/apis')
 const {debounce} = require("../modules/utils.js")
 import type {Profile} from "../../types.js"
+const Loading = require('./Loading.jsx')
 
 export default class ProfileRoute extends React.Component {
 
@@ -26,12 +27,15 @@ export default class ProfileRoute extends React.Component {
         return (
             <div className="profile-route">
                 <h3>Profile</h3>
+
+                {!this.state.profile && <Loading />}
+
                 {this.state.profile && <div className="box">
                     <input type="text" className="name" placeholder="Your name" value={this.state.profile.first_name} onChange={({target})=> {
                         this.setState({profile: {...this.state.profile, first_name: target.value}})
                         this.onChange()
                     }} />
-                    <input type="text" className="mobile" placeholder="Mobile number" value={this.state.profile.telephone} disabled />
+                    <input type="text" className="mobile" placeholder="Mobile number" value={this.state.profile.username} disabled />
                 </div>}
             </div>
         )
