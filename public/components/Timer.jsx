@@ -2,6 +2,7 @@
 
 const React = require('react')
 const moment = require('moment')
+const ProgressBar = require('./ProgressBar.jsx')
 import type {TimerState} from "../../types.js"
 
 type Props = {
@@ -29,7 +30,11 @@ export default class Timer extends React.Component {
 
     render() {
         return (
-            <div className="timer-component" ref="timer">--: --: --</div>
+            <div className="timer-component">
+                <div className="icon-clock" />
+                <ProgressBar progress={100} />
+                <div className="timer" ref="timer">00: 00: 00</div>
+            </div>
         )
     }
 
@@ -80,6 +85,9 @@ export default class Timer extends React.Component {
         this.elapsed = this.elapsed + 50
 
         this.refs.timer.innerHTML = formatTime(timeLeft <= 0 ? 0 : timeLeft)
+
+        const progressBar = document.querySelector('.progress .meter')
+        progressBar.style.width = `${(timeLeft <= 0 ? 0 : timeLeft )*100/this.props.totalAvailableTime}%`
 
         if (timeLeft <= 0) {
             this.pause()
