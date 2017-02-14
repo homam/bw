@@ -14,6 +14,7 @@ const NumberEntry = require('./NumberEntry.jsx')
 const PinEntry = require('./PinEntry.jsx')
 const RegisterCongrats = require('./RegisterCongrats.jsx')
 const {waitSeq} = require('../modules/async')
+import Loading from './Loading.jsx'
 
 type AuthStage = 'msisdn-entry' | 'pin-entry' | 'congrats'
 
@@ -45,35 +46,45 @@ class HomeRoute extends React.Component {
         }
     }
 
+    createContestThumbElem(selectedGameId, showLoading, contestItem) {
+        return (
+        <ContestThumb
+            key={contestItem.contest_id}
+            loading={(selectedGameId == contestItem.game_id && showLoading)}
+            contestItem={contestItem}
+            onClick={({game_id, unlocked})=> {
+                if (!!unlocked) {
+                    return history.push(`/contest/${game_id}/play`)
+                } else {
+
+                    if (this.props.authenticationLevel == 'anonymous') {
+                        this.setState({selectedGameId: game_id, authStage: 'msisdn-entry'})
+                    } else {
+                        this.setState({selectedGameId: game_id, showLoading: true})
+
+                        subscription(game_id, "BigwinApp")
+                        .then((d)=> {
+                            this.setState({authStage: 'pin-entry', showLoading: false})
+                        })
+                        .catch(({message})=> {
+                            this.setState({showLoading: false, authError: message})
+                        })
+                    }
+
+                }
+            }}
+        />
+        )
+    }
+
     render() {
 
-        const ContestThumbList = R.map((contestItem)=>
-            <ContestThumb
-                key={contestItem.contest_id}
-                loading={(this.state.selectedGameId == contestItem.game_id && this.state.showLoading)}
-                contestItem={contestItem}
-                onClick={({game_id, unlocked})=> {
-                    if (!!unlocked) {
-                        return history.push(`/contest/${game_id}/play`)
-                    } else {
+        const unlockedContests = R.filter((it)=> it.unlocked)(this.state.contestList)
+        const newContests = R.filter((it)=> !it.unlocked)(this.state.contestList)
+        const createThumb = R.curry(this.createContestThumbElem.bind(this))(this.state.selectedGameId, this.state.showLoading)
 
-                        if (this.props.authenticationLevel == 'anonymous') {
-                            this.setState({selectedGameId: game_id, authStage: 'msisdn-entry'})
-                        } else {
-                            this.setState({selectedGameId: game_id, showLoading: true})
-
-                            subscription(game_id, "BigwinApp")
-                            .then((d)=> {
-                                this.setState({authStage: 'pin-entry', showLoading: false})
-                            })
-                            .catch(({message})=> {
-                                this.setState({showLoading: false, authError: message})
-                            })
-                        }
-
-                    }
-                }} />
-        )(this.state.contestList)
+        const unlockedContestThumbList = R.map(createThumb)(unlockedContests)
+        const newContestThumbList = R.map(createThumb)(newContests)
 
         return (
             <div className="home-route">
@@ -146,7 +157,19 @@ class HomeRoute extends React.Component {
                     />}
                 </div>
 
-                <div className={(!!this.state.authStage) ? 'transition hide' : 'transition'}>{ContestThumbList}</div>
+                <div className={(!!this.state.authStage) ? 'transition hide' : 'transition'}>
+                    {!R.isEmpty(unlockedContests) && <div>
+                        <h3>My Games</h3>
+                        {unlockedContestThumbList}
+                    </div>}
+
+                    {!R.isEmpty(newContests) && <div>
+                        <h3>New Games</h3>
+                        {newContestThumbList}
+                    </div>}
+                </div>
+
+                {R.isEmpty(this.state.contestList) && <Loading />}
             </div>
         )
     }
