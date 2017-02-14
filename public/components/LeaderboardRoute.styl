@@ -17,23 +17,26 @@
     .leader-board
         box-shadow 0 0 6px 0 rgba(0,0,0,0.45)
         margin 5px
+        border-radius 7px
 
         .leader-board-item
             width auto
             margin-left 0
 
-    .contest-info-component
+    .contest-info-container
         background-image url(/img/bg-curtain.png)
         background-position-y 230px
         height 87px
         margin auto
         display flex
+        align-items center
+        font-size 25px
 
         > .contest-image
-          width 120px
-          height 87px
-          min-width 120px
-          padding-left 0
+            width 90px
+            height 63px
+            background-size contain
+            background-repeat no-repeat
 
         > .contest-info
             justify-content center
@@ -42,10 +45,10 @@
 
         .title
             color #f2dc4f
-
+            font-weight bold
+            
         p
             color #fff
-            font-size 25px
             margin 0
             font-weight 100
             text-transform uppercase

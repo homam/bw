@@ -328,7 +328,7 @@ export default class PlayRouteContainer extends React.Component {
                 />
                 <div className='play-route-content'>
                     <div className='blocker' onMouseDown={ () => sfx.error.play() } /> {/* used to disable interaction during the shake, penalty animation*/}
-                    {!R.contains(this.state.currentState, ['level_complete', 'level_timeout', 'countdown']) && currentLevel && (
+                    {!R.contains(this.state.currentState, ['level_complete', 'level_timeout', 'countdown', 'congrats']) && currentLevel && (
                         <div>
                             <div className="level-info">Question {this.state.currentQuestionIndex + 1} of {currentLevel.total_questions}</div>
                             {/* <ProgressBar progress={progressLevel} /> */}

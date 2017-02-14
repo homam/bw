@@ -28,7 +28,7 @@ module.exports = (props:{contestItem: ContestItem, loading: boolean, onClick: (c
                         </div>
                         <div className="info">
                             <p className="title">{name}</p>
-                            <p className="info">{daysLeft == 0 ? 'Ends today' : `Ends in ${daysLeft} days`}</p>
+                            <p className="days-left">{daysLeft == 0 ? 'Ends today' : `Ends in ${daysLeft} days`}</p>
                         </div>
                     </div>
 

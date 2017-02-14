@@ -32,7 +32,7 @@ export default class LeaderboardRoute extends React.Component {
             <div className="leaderboard-route">
                 <div className={("content " + (!!this.state.leaderboard ? '' : 'transitioning'))}>
                     {!!this.state.leaderboard && <div>
-                        <div className="contest-info-component">
+                        <div className="contest-info-container">
                             <div className="contest-image" style={{backgroundImage: `url('${this.state.leaderboard.contest.contest_image}')`}} />
                             <div className="contest-info">
                                 <div className="row title">
