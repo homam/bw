@@ -1,20 +1,44 @@
+// @flow
+
 const React = require('react')
 const Leaderboard = require('./Leaderboard.jsx')
 const Loading = require('./Loading.jsx')
-import type {LeaderboardType} from "../../types.js";
+const {getLeadreboard} = require('../modules/apis')
+import type {LeaderboardType} from "../../types.js"
 
-module.exports = (props:{leaderboard: ?LeaderboardType})=> {
+class Congrats extends React.Component {
 
-    return (
-        <div className="congrats-component">
+    state: {
+        leaderboard: ?LeaderboardType
+    }
+
+    constructor(props: {contestId: number}) {
+        super(props)
+
+        this.state = {
+            leaderboard: (null: ?LeaderboardType)
+        }
+    }
+
+    componentDidMount(){
+        getLeadreboard(this.props.contestId, true).then((leaderboard: LeaderboardType)=> {
+            this.setState({leaderboard})
+        })
+    }
+
+    render() {
+        return (<div className="congrats-component">
 
             <div className="column">
               <img src="/img/congrats.png" style={{width: '271px', height: '126px'}} />
             </div>
             <div style={{padding: '0 10% 0 10%'}}>
-                {!!props.leaderboard ? <Leaderboard board={props.leaderboard.leaderboard} /> : <Loading />}
+                {!!this.state.leaderboard ? <Leaderboard board={this.state.leaderboard.leaderboard} /> : <Loading />}
             </div>
 
-        </div>
-    )
+        </div>)
+    }
+
 }
+
+module.exports = Congrats

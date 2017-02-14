@@ -4,9 +4,9 @@ const React = require('react')
 const R = require('ramda')
 const moment = require('moment')
 const cookie = require('react-cookie')
-const {getContestQuiz, answerQuiz, getContestList, getLeadreboard} = require('../modules/apis')
+const {getContestQuiz, answerQuiz, getContestList} = require('../modules/apis')
 const {waitPromise, wait, waitSeq} = require('../modules/async')
-import type {QuestionItem, LevelItem, TimerState, ContestItem, LeaderboardType} from "../../types.js"
+import type {QuestionItem, LevelItem, TimerState, ContestItem} from "../../types.js"
 
 const ContestInfo = require('./ContestInfo.jsx')
 const Question = require('./Question.jsx')
@@ -43,7 +43,6 @@ export default class PlayRouteContainer extends React.Component {
         , levelTimeAvailable: ?number
         , timerState: TimerState
         , currentState: 'countdown' | 'question' | 'level_timeout' | 'level_complete' | 'congrats'
-        , leaderboard: ?LeaderboardType
         , showLoading: boolean
     }
 
@@ -62,7 +61,6 @@ export default class PlayRouteContainer extends React.Component {
             , levelTimeAvailable: (null: ?number)
             , timerState: (null: TimerState)
             , currentState: 'countdown'
-            , leaderboard: (null : ?LeaderboardType)
             , showLoading: false
         };
 
@@ -244,12 +242,6 @@ export default class PlayRouteContainer extends React.Component {
                 //     this.loadContestLevel(this.state.contestId, this.state.currentLevelIndex + 2)
                 // }
 
-                if (is_contest_complete) {
-                    getLeadreboard(this.state.contestId, false).then((leaderboard: LeaderboardType)=> {
-                        this.setState({leaderboard})
-                    })
-                }
-
                 // code for sequencing UI effects
                 sfx.right.play()
                 //TODO: handle is_completed
@@ -315,7 +307,7 @@ export default class PlayRouteContainer extends React.Component {
                 currentStateElement = <LevelTimeout level={this.state.currentLevelIndex + 1} onClick={()=> this.retryLevel()} loading={this.state.showLoading} />
                 break;
             case 'congrats':
-                currentStateElement = <Congrats leaderboard={this.state.leaderboard}/>
+                currentStateElement = <Congrats contestId={this.state.contestId}/>
                 break;
         }
 
