@@ -7,20 +7,24 @@ const Loading = require('./Loading.jsx')
 export default class ProfileRoute extends React.Component {
 
     state: {
-        profile: Profile | null
+        profile: Profile | null,
+        errorMessage: ?string
     }
 
     constructor(props) {
         super(props)
 
         this.state = {
-            profile: (null : ?Profile)
+            profile: (null : ?Profile),
+            errorMessage: (null: ?string)
         }
     }
 
     onChange = debounce(()=> {
+        this.setState({errorMessage: null})
+
         updateProfile(this.state.profile.first_name)
-        .then((d)=> console.log(d))
+        .catch(({message})=> this.setState({errorMessage: message}))
     }, 1000)
 
     render() {
@@ -37,6 +41,8 @@ export default class ProfileRoute extends React.Component {
                     }} />
                     <input type="text" className="mobile" placeholder="Mobile number" value={this.state.profile.username} disabled />
                 </div>}
+
+                <p className="error">{this.state.errorMessage}</p>
             </div>
         )
     }
