@@ -6,14 +6,19 @@
     bottom 0
     background #000
     z-index 999
+    overflow auto
 
     .error
         color #F00
         font-size 12px
-        
+
     .row
         text-align center
         margin 10px
+
+        &.center
+            margin auto
+            width 80%
 
     h2
         color #ECAA44
@@ -61,21 +66,23 @@
         align-items center
 
         .contest-image
-            width 120px
-            height 87px
+            width 100px
+            height 70px
             min-width 120p
             background-position center
             background-size contain
             background-repeat no-repeat
 
         .info
+            margin-left 9px
+
             p
                 margin 0
                 text-align left
 
             .title
                 color #fff
-                font-size 30px
+                font-size 23px
                 font-weight bold
 
             .info

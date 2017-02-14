@@ -87,7 +87,7 @@ class HomeRoute extends React.Component {
         const newContestThumbList = R.map(createThumb)(newContests)
 
         return (
-            <div className="home-route">
+            <div className={!!this.state.authStage ? "home-route overlay" : "home-route"}>
                 <div className={(this.state.authStage == 'msisdn-entry') ? 'transition' : 'transition hide'}>
                     {this.state.authStage == 'msisdn-entry' && <NumberEntry
                         contestItem={R.find((x)=> x.game_id == this.state.selectedGameId)(this.state.contestList)}
@@ -165,6 +165,11 @@ class HomeRoute extends React.Component {
 
                     {!R.isEmpty(newContests) && <div>
                         <h3>New Games</h3>
+                        {newContestThumbList}
+                        {newContestThumbList}
+                        {newContestThumbList}
+                        {newContestThumbList}
+                        {newContestThumbList}
                         {newContestThumbList}
                     </div>}
                 </div>

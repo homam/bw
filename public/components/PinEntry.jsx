@@ -29,7 +29,7 @@ module.exports = React.createClass({
                     <div className="separator"></div>
                 </div>
 
-                <div className="row pin-sent-info">
+                <div className="row center pin-sent-info">
                     <p>We have sent a 4-digit unlock code to your number.</p>
                     <h2>Enter code:</h2>
                 </div>

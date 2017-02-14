@@ -29,7 +29,7 @@ module.exports = React.createClass({
                     <div className="separator"></div>
                 </div>
 
-                <div className="row">
+                <div className="row center">
                     <h2>Enter your mobile number to unlock:</h2>
                 </div>
 
