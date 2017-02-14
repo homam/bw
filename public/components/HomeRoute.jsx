@@ -166,11 +166,6 @@ class HomeRoute extends React.Component {
                     {!R.isEmpty(newContests) && <div>
                         <h3>New Games</h3>
                         {newContestThumbList}
-                        {newContestThumbList}
-                        {newContestThumbList}
-                        {newContestThumbList}
-                        {newContestThumbList}
-                        {newContestThumbList}
                     </div>}
                 </div>
 
