@@ -226,9 +226,9 @@ const getLeadreboard = (url: string, authKey: string, contestId: number, all: bo
 
     const payload = {
         contest_id: contestId,
-        all: (all ? 1 : 0),
         limit: 20,
-        offset: 0
+        offset: 0,
+        last_game_summary: (all ? 1 : 0)
     }
 
     const hash = R.compose(calculateHash, constructPayloadString)(payload)
