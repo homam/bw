@@ -84,7 +84,7 @@ class App extends React.Component {
         return (
             <div className={`container${this.state.isMenuOpen ? ' menu-open' : ''}`}>
                 <div className="menu">
-                    <Menu isAuthenticated={this.state.authenticationLevel == 'user'} toggleMenu={this.toggleMenu.bind(this)} />
+                    <Menu isAuthenticated={this.state.authenticationLevel == 'user'} currentRoute={currentRouteName} toggleMenu={this.toggleMenu.bind(this)} />
                 </div>
                 <div className="menu-blocker" onTouchStart={() => this.toggleMenu()} />
                 <header>
