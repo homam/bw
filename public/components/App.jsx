@@ -80,9 +80,11 @@ class App extends React.Component {
 
         // const currentRouteName = this.props.routes[this.props.routes.length-1].label
         const currentRouteName = this.props.location.pathname
+        const pathName = currentRouteName.slice(1).slice(0, currentRouteName.indexOf('/', 1) - 1)
+        const clss = !pathName ? "home" : pathName
 
         return (
-            <div className={`container${this.state.isMenuOpen ? ' menu-open' : ''}`}>
+            <div className={`container ${clss} ${this.state.isMenuOpen ? ' menu-open' : ''}`}>
                 <div className="menu">
                     <Menu isAuthenticated={this.state.authenticationLevel == 'user'} currentRoute={currentRouteName} toggleMenu={this.toggleMenu.bind(this)} />
                 </div>
